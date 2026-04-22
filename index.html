@@ -9,138 +9,199 @@
             margin: 0;
             padding: 0;
             height: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
             display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        #chat-container {
-            flex: 2;
+        #app-container {
+            width: 95%;
+            height: 90vh;
+            background: white;
             display: flex;
             flex-direction: column;
-            border-right: 2px solid #e0e0e0;
-            height: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            overflow: hidden;
         }
-        #controls {
-            padding: 10px;
-            background: #f8f9fa;
+        #header {
+            padding: 15px 25px;
+            background: #ffffff;
+            border-bottom: 1px solid #eee;
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .btn-gpt { background: #10a37f; color: white; }
-        .btn-gemini { background: #4285f4; color: white; }
-        .btn-save { background: #007bff; color: white; width: 100%; padding: 12px; margin-top: 10px; }
-        .btn:hover { opacity: 0.8; transform: translateY(-1px); }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { font-size: 24px; }
+        .title { font-weight: 700; color: #1a73e8; font-size: 1.2rem; }
         
-        iframe {
+        #main-content {
             flex: 1;
-            border: none;
-            width: 100%;
+            display: flex;
+            overflow: hidden;
         }
         
-        #note-container {
+        #chat-sidebar {
+            width: 300px;
+            background: #f8f9fa;
+            border-right: 1px solid #eee;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        #note-area-container {
             flex: 1;
             padding: 20px;
             display: flex;
             flex-direction: column;
-            background: white;
-            min-width: 350px;
         }
-        h2 { margin-top: 0; color: #333; display: flex; align-items: center; gap: 10px; }
-        p { color: #666; font-size: 14px; margin-bottom: 15px; }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-gpt { background: #10a37f; color: white; }
+        .btn-gemini { background: #1a73e8; color: white; }
+        .btn-save { background: #34a853; color: white; margin-top: 15px; font-size: 1rem; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         
         textarea {
             flex: 1;
             width: 100%;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            padding: 20px;
+            border: 2px solid #f0f2f5;
+            border-radius: 12px;
             font-size: 16px;
             line-height: 1.6;
             resize: none;
-            box-sizing: border-box;
             outline: none;
-            background: #fffdf5;
+            background: #fafafa;
+            color: #333;
         }
-        textarea:focus { border-color: #007bff; box-shadow: 0 0 5px rgba(0,123,255,0.2); }
+        textarea:focus { border-color: #1a73e8; background: #fff; }
         
-        #status {
-            font-size: 12px;
-            color: green;
-            margin-top: 5px;
+        .status-msg {
+            font-size: 13px;
+            color: #666;
             text-align: center;
-            height: 15px;
+            margin-top: 10px;
+        }
+        .instruction-card {
+            background: #e8f0fe;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #1967d2;
+            line-height: 1.4;
         }
     </style>
 </head>
 <body>
 
-    <div id="chat-container">
-        <div id="controls">
-            <button class="btn btn-gpt" onclick="changeAI('https://chatgpt.com')">Mở ChatGPT</button>
-            <button class="btn btn-gemini" onclick="changeAI('https://gemini.google.com')">Mở Gemini</button>
-            <span style="font-size: 13px; color: #888; margin-left: auto;">Đăng nhập 1 lần, dùng mãi mãi</span>
+    <div id="app-container">
+        <div id="header">
+            <div class="logo-area">
+                <span class="logo-icon">💝</span>
+                <span class="title">AI Knowledge Hub - For My Wife</span>
+            </div>
+            <div id="save-indicator" style="color: #34a853; font-weight: 600; font-size: 14px;"></div>
         </div>
-        <iframe id="ai-frame" src="https://chatgpt.com"></iframe>
-    </div>
 
-    <div id="note-container">
-        <h2>🧠 Kho Kiến Thức</h2>
-        <p>Vợ hãy dán những kiến thức quan trọng vào đây để lưu lại nhé!</p>
-        <textarea id="note-area" placeholder="Ví dụ: Cách làm báo cáo tài chính tháng 4..."></textarea>
-        <div id="status"></div>
-        <button class="btn btn-save" onclick="saveToMD()">💾 LƯU RA FILE .MD</button>
-        <p style="font-size: 11px; text-align: center; margin-top: 10px;">Dữ liệu tự động lưu khi Vợ gõ (Auto-save)</p>
+        <div id="main-content">
+            <div id="chat-sidebar">
+                <div class="instruction-card">
+                    <b>Hướng dẫn:</b><br>
+                    1. Bấm nút mở Chat bên dưới.<br>
+                    2. Copy câu trả lời của AI.<br>
+                    3. Dán vào khung ghi chú bên cạnh.<br>
+                    4. Dữ liệu sẽ tự động lưu!
+                </div>
+                
+                <button class="btn btn-gpt" onclick="openChat('https://chatgpt.com')">
+                    <span>💬</span> Mở ChatGPT
+                </button>
+                <button class="btn btn-gemini" onclick="openChat('https://gemini.google.com')">
+                    <span>✨</span> Mở Gemini
+                </button>
+                
+                <div style="margin-top: auto; font-size: 12px; color: #999; text-align: center;">
+                    Dữ liệu lưu tại máy cá nhân của Vợ
+                </div>
+            </div>
+
+            <div id="note-area-container">
+                <textarea id="note-area" placeholder="Dán kiến thức quan trọng vào đây để lưu lại..."></textarea>
+                <button class="btn btn-save" onclick="saveToFile()">
+                    💾 XUẤT RA FILE .MD (ĐỂ GỬI HOẶC LƯU TRỮ)
+                </button>
+                <div class="status-msg" id="last-saved"></div>
+            </div>
+        </div>
     </div>
 
     <script>
         const noteArea = document.getElementById('note-area');
-        const aiFrame = document.getElementById('ai-frame');
-        const status = document.getElementById('status');
+        const saveIndicator = document.getElementById('save-indicator');
+        const lastSaved = document.getElementById('last-saved');
 
-        // Tải dữ liệu đã lưu từ trình duyệt
+        // Load data
         window.onload = () => {
-            const savedNote = localStorage.getItem('ai_knowledge');
-            if (savedNote) {
-                noteArea.value = savedNote;
+            const savedData = localStorage.getItem('wife_ai_knowledge');
+            if (savedData) {
+                noteArea.value = savedData;
             }
         };
 
-        // Tự động lưu vào bộ nhớ trình duyệt khi gõ
+        // Auto save on type
         noteArea.oninput = () => {
-            localStorage.setItem('ai_knowledge', noteArea.value);
+            localStorage.setItem('wife_ai_knowledge', noteArea.value);
+            saveIndicator.innerText = "Đã tự động lưu nháp...";
+            setTimeout(() => { saveIndicator.innerText = ""; }, 2000);
         };
 
-        function changeAI(url) {
-            aiFrame.src = url;
+        function openChat(url) {
+            // Mở cửa sổ chat ở một cửa sổ popup riêng biệt giúp vợ dễ nhìn
+            const width = 800;
+            const height = 700;
+            const left = (screen.width - width) / 4;
+            const top = (screen.height - height) / 2;
+            window.open(url, 'AIChatWindow', `width=${width},height=${height},top=${top},left=${left},menubar=no,toolbar=no,location=no,status=no`);
         }
 
-        function saveToMD() {
-            const text = noteArea.value;
-            if (!text) {
-                alert("Vợ chưa nhập gì vào ô kiến thức kìa!");
+        function saveToFile() {
+            const content = noteArea.value;
+            if (!content) {
+                alert("Vợ chưa nhập kiến thức nào để lưu cả!");
                 return;
             }
-
-            const blob = new Blob([text], { type: 'text/markdown' });
+            
+            const blob = new Blob([content], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'kien_thuc_ai.md';
+            const date = new Date().toLocaleDateString('vi-VN').replaceAll('/', '-');
+            
+            a.href = url;
+            a.download = `kien-thuc-ai-${date}.md`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-
-            status.innerText = "Đã tải file xuống máy thành công!";
-            setTimeout(() => status.innerText = "", 3000);
+            URL.revokeObjectURL(url);
+            
+            lastSaved.innerText = "Đã tải file .md thành công!";
+            setTimeout(() => { lastSaved.innerText = ""; }, 4000);
         }
     </script>
 </body>
