@@ -21,10 +21,8 @@
             --accent-green: #10B981;
             --accent-orange: #F59E0B;
             --accent-purple: #8B5CF6;
-            --editor-bg: transparent;
         }
 
-        /* Dark Mode Colors */
         body.dark-mode {
             --bg-main: #111827;
             --bg-card: #1F2937;
@@ -32,15 +30,9 @@
             --text-sub: #9CA3AF;
             --border: #374151;
             --sidebar-bg: #111827;
-            --editor-bg: #1F2937;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
         body {
             background-color: var(--bg-main);
@@ -51,9 +43,9 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Sidebar Pro */
+        /* Sidebar */
         aside {
-            width: 320px;
+            width: 280px;
             background: var(--sidebar-bg);
             border-right: 1px solid var(--border);
             display: flex;
@@ -66,28 +58,16 @@
         .brand {
             font-size: 1.1rem;
             font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: 24px;
             color: var(--primary);
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-bottom: 24px;
         }
 
-        .nav-group {
-            margin-bottom: 20px;
-        }
-
-        .nav-label {
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-sub);
-            margin-bottom: 8px;
-            display: block;
-        }
-
+        .nav-group { margin-bottom: 20px; }
+        .nav-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--text-sub); margin-bottom: 8px; display: block; }
+        
         .btn-nav {
             width: 100%;
             padding: 8px 10px;
@@ -102,28 +82,12 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            transition: all 0.2s;
             margin-bottom: 2px;
+            transition: all 0.2s;
         }
-
-        .btn-nav:hover { background: #F3F4F6; }
+        .btn-nav:hover { background: rgba(0,0,0,0.05); }
+        body.dark-mode .btn-nav:hover { background: rgba(255,255,255,0.05); }
         .btn-nav svg { width: 16px; height: 16px; stroke-width: 2; }
-
-        /* To-do List Styles */
-        .todo-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
-            padding: 4px 0;
-        }
-        .todo-item input[type="checkbox"] {
-            cursor: pointer;
-        }
-        .todo-item.done {
-            text-decoration: line-through;
-            color: var(--text-sub);
-        }
 
         /* Main Content */
         main {
@@ -133,36 +97,31 @@
             padding: 24px 32px;
             gap: 20px;
             overflow: hidden;
+            position: relative;
         }
 
         header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
+            padding-right: 120px; /* Nhường chỗ cho đồng hồ */
         }
 
-        .quote-box {
-            font-style: italic;
-            color: var(--primary);
-            font-size: 0.85rem;
-            margin-top: 4px;
-        }
+        .todo-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; padding: 4px 0; }
+        .todo-item.done { text-decoration: line-through; color: var(--text-sub); }
 
         /* Editor Pro */
-        .editor-header {
-            display: flex;
-            gap: 10px;
-            margin-bottom: -1px;
-        }
+        .editor-header { display: flex; gap: 10px; margin-bottom: -1px; }
         .tab-btn {
             padding: 8px 16px;
             border: 1px solid var(--border);
             border-bottom: none;
-            background: #F3F4F6;
+            background: rgba(0,0,0,0.05);
             border-radius: 8px 8px 0 0;
             cursor: pointer;
             font-size: 0.85rem;
             font-weight: 600;
+            color: var(--text-sub);
         }
         .tab-btn.active {
             background: var(--bg-card);
@@ -177,181 +136,150 @@
             border-radius: 0 12px 12px 12px;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             overflow: hidden;
         }
 
-        #note-area, #preview-area {
-            flex: 1;
-            padding: 24px;
-            font-size: 1rem;
-            line-height: 1.6;
-            overflow-y: auto;
-        }
-        #note-area {
-            border: none;
-            resize: none;
-            outline: none;
-            background: transparent;
-        }
-        #preview-area {
-            display: none;
-            background: #fff;
-        }
-        #preview-area h1, #preview-area h2 { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        #preview-area p { margin-bottom: 10px; }
+        #note-area, #preview-area { flex: 1; padding: 24px; font-size: 1rem; line-height: 1.6; overflow-y: auto; color: var(--text-main); }
+        #note-area { border: none; resize: none; outline: none; background: transparent; }
+        #preview-area { display: none; }
 
         .editor-footer {
             padding: 12px 24px;
-            background: #FAFBFC;
+            background: rgba(0,0,0,0.02);
             border-top: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        /* Utils */
-        .search-box {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 0.85rem;
-            margin-bottom: 16px;
-            outline: none;
-        }
-
         .btn-primary {
             background: var(--primary);
             color: white;
-            padding: 8px 16px;
+            padding: 8px 20px;
             border-radius: 8px;
             border: none;
             font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
-            display: flex;
-            align-items: center; gap: 8px;
         }
 
-        /* Cat Animation Fix */
-        #loading-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(4px);
-            display: none; justify-content: center; align-items: center; z-index: 9999;
+        /* Fixed Cat Clock in Top Right */
+        .fixed-clock-container {
+            position: absolute;
+            top: 20px;
+            right: 32px;
+            width: 100px;
+            height: 100px;
+            z-index: 100;
         }
-        .loading-cat { transform: scale(0.5); }
+
+        /* Tối ưu CSS Đồng hồ Mèo */
+        .c-clock { position: relative; width: 100%; height: 100%; scale: 0.8; }
+        .c-clock__inner { 
+            position: absolute; top: 10%; left: 10%; width: 80%; height: 80%;
+            background: white; border: 2px solid #F27398; border-radius: 50%; z-index: 6; 
+        }
+        .c-clock__needle { 
+            position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; 
+            background: #333; border-radius: 2px; z-index: 10; 
+        }
+        #sec { width: 1px; height: 40%; background: #F27398; }
+        #min { width: 2px; height: 35%; }
+        #hour { width: 3px; height: 25%; }
+        
+        .c-cat__face { 
+            position: absolute; top: -10%; left: 0; width: 100%; height: 80%;
+            background: #9D9D9D; border-radius: 50%; z-index: 5;
+        }
+        .c-cat__ears { position: absolute; top: -25%; left: 0; width: 100%; height: 30%; z-index: 4; display: flex; justify-content: space-around; }
+        .c-cat__ear { width: 30%; height: 100%; background: #9D9D9D; border-radius: 30% 30% 0 0; }
+
+        .c-cat__eyes { position: absolute; top: 25%; left: 0; width: 100%; display: flex; justify-content: space-around; padding: 0 15%; box-sizing: border-box; }
+        .c-cat__eye { width: 15px; height: 15px; background: #333; border-radius: 50%; position: relative; overflow: hidden; }
+        .c-cat__eyelid { position: absolute; top: 0; left: 0; width: 100%; height: 0; background: #9D9D9D; transition: height 0.1s; }
+        .c-cat__eyelid.blink { animation: blink-anim 0.2s; }
+        @keyframes blink-anim { 0%, 100% { height: 0; } 50% { height: 100%; } }
 
         /* Focus Mode */
         body.focus-mode aside { display: none; }
         body.focus-mode main { padding: 40px 15%; }
-
-        /* Cat Clock Small */
-        .cat-clock-wrapper { transform: scale(0.25); height: 120px; margin-top: 10px; }
-
-        /* Prompt Chips */
-        .prompt-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 12px;
+        
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 9999;
         }
-        .chip {
-            padding: 4px 10px;
-            background: #EEF2FF;
-            color: var(--primary);
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            border: 1px solid #E0E7FF;
-        }
-        .chip:hover { background: #E0E7FF; }
+        body.dark-mode #loading-overlay { background: rgba(0,0,0,0.8); }
     </style>
 </head>
 <body>
 
-    <div id="loading-overlay">
-        <div class="loading-cat">
-            <div class="body"></div>
-            <div class="head"><div class="face"></div></div>
-            <div class="foot">
-                <div class="tummy-end"></div><div class="bottom"></div><div class="legs left"></div><div class="legs right"></div>
-            </div>
-            <div class="hands left"></div><div class="hands right"></div>
-        </div>
-    </div>
+    <div id="loading-overlay">Con mèo đang chạy...</div>
 
     <aside>
-        <div class="brand">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/></svg>
-            AI HUB PRO
-        </div>
-
-        <input type="text" class="search-box" placeholder="Tìm kiếm ghi chú..." oninput="searchNote(this.value)">
+        <div class="brand">AI HUB PRO</div>
 
         <div class="nav-group">
-            <span class="nav-label">Công cụ nạp</span>
+            <span class="nav-label">Trò chuyện</span>
+            <button class="btn-nav" onclick="openChat('https://chatgpt.com')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                ChatGPT
+            </button>
+            <button class="btn-nav" onclick="openChat('https://gemini.google.com')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                Gemini
+            </button>
+        </div>
+
+        <div class="nav-group">
+            <span class="nav-label">Kiến thức</span>
             <button class="btn-nav" onclick="selectFolder()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
                 Thư mục lưu
             </button>
             <button class="btn-nav" onclick="loadFileForAI()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                Nạp file vào AI
+                Nạp file cho AI
             </button>
-        </div>
-
-        <div class="nav-group">
-            <span class="nav-label">Prompt Mẫu</span>
-            <div class="prompt-chips">
-                <div class="chip" onclick="applyTemplate('summarize')">Tóm tắt</div>
-                <div class="chip" onclick="applyTemplate('grammar')">Sửa lỗi</div>
-                <div class="chip" onclick="applyTemplate('email')">Viết Mail</div>
-            </div>
         </div>
 
         <div class="nav-group">
             <span class="nav-label">Việc cần làm</span>
-            <div id="todo-list">
-                <!-- Todo items will be injected here -->
-            </div>
-            <button class="btn-nav" style="margin-top: 8px; color: var(--primary);" onclick="addTodo()">
-                + Thêm việc mới
-            </button>
+            <div id="todo-list"></div>
+            <button class="btn-nav" style="color: var(--primary);" onclick="addTodo()">+ Thêm việc</button>
         </div>
 
         <div class="nav-group" style="margin-top: auto;">
-            <span class="nav-label">Dữ liệu & UI</span>
-            <button class="btn-nav" onclick="toggleDarkMode()">
-                <svg id="dark-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                Chế độ Tối/Sáng
-            </button>
-            <button class="btn-nav" onclick="toggleFocusMode()">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-                Chế độ tập trung
-            </button>
-            <button class="btn-nav" onclick="backupData()">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-                Sao lưu dữ liệu
-            </button>
-        </div>
-
-        <!-- Clock -->
-        <div class="cat-clock-wrapper">
-            <div class="clock"><div class="clock__inner"><ul class="clock__nums"><li class="clock__num clock__num--12"><span>12</span></li></ul><div class="clock__needles"><div class="clock__needle" id="hour"></div><div class="clock__needle" id="min"></div><div class="clock__needle" id="sec"></div></div></div><div class="cat"><div class="cat__face"><div class="cat__eyes"><div class="cat__eyes__eye"><div class="cat__eyes__eyelid"></div></div></div></div></div></div>
+            <button class="btn-nav" onclick="toggleDarkMode()">🌓 Tối/Sáng</button>
+            <button class="btn-nav" onclick="toggleFocusMode()">🧘 Tập trung</button>
+            <button class="btn-nav" onclick="backupData()">💾 Sao lưu</button>
         </div>
     </aside>
 
     <main>
-        <header>
-            <div class="header-info">
-                <h1>Chào buổi sáng, Vợ yêu!</h1>
-                <div class="quote-box" id="daily-quote">Hãy làm việc thật vui vẻ nhé.</div>
+        <div class="fixed-clock-container">
+            <div class="c-clock">
+                <div class="c-cat__ears">
+                    <div class="c-cat__ear"></div>
+                    <div class="c-cat__ear"></div>
+                </div>
+                <div class="c-cat__face">
+                    <div class="c-cat__eyes">
+                        <div class="c-cat__eye"><div class="c-cat__eyelid" id="eyelid-l"></div></div>
+                        <div class="c-cat__eye"><div class="c-cat__eyelid" id="eyelid-r"></div></div>
+                    </div>
+                </div>
+                <div class="c-clock__inner">
+                    <div class="c-clock__needle" id="hour"></div>
+                    <div class="c-clock__needle" id="min"></div>
+                    <div class="c-clock__needle" id="sec"></div>
+                </div>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn-primary" style="background: #10a37f;" onclick="openChat('https://chatgpt.com')">ChatGPT</button>
-                <button class="btn-primary" onclick="openChat('https://gemini.google.com')">Gemini</button>
+        </div>
+
+        <header>
+            <div>
+                <h1>Chào Vợ yêu!</h1>
+                <p id="daily-quote" style="color: var(--text-sub); font-style: italic;"></p>
             </div>
         </header>
 
@@ -359,235 +287,112 @@
             <button class="tab-btn active" id="tab-edit" onclick="switchTab('edit')">Soạn thảo</button>
             <button class="tab-btn" id="tab-preview" onclick="switchTab('preview')">Xem trước</button>
         </div>
+
         <div class="editor-container">
-            <textarea id="note-area" placeholder="Dán nội dung chat hoặc ghi chú tại đây..."></textarea>
-            <div id="preview-area" class="markdown-body"></div>
-            
+            <textarea id="note-area" placeholder="Ghi chú kiến thức tại đây..."></textarea>
+            <div id="preview-area"></div>
             <div class="editor-footer">
-                <div id="notification" style="font-size: 0.8rem; color: var(--accent-green);">Tự động lưu...</div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn-nav" onclick="copyKnowledgeForAI()" style="width: auto; background: #EEF2FF; color: var(--primary);">Copy cho AI</button>
-                    <button class="btn-primary" onclick="saveAsNewFile()">
-                        Lưu file mới
-                    </button>
-                </div>
+                <span id="save-status" style="font-size: 0.8rem; color: var(--accent-green);">Đã lưu nháp</span>
+                <button class="btn-primary" onclick="saveAsNewFile()">Lưu file mới</button>
             </div>
         </div>
     </main>
 
     <script>
-        // Data & State
-        let notes = "";
         let todos = JSON.parse(localStorage.getItem('wife_todos') || '[]');
         let directoryHandle = null;
 
-        const quotes = [
-            "Hôm nay là một ngày tuyệt vời để thành công!",
-            "Vợ làm việc chăm chỉ rồi, nhớ nghỉ ngơi nhé.",
-            "Nụ cười của vợ là động lực của chồng.",
-            "Từng bước nhỏ sẽ dẫn đến thành công lớn.",
-            "Đừng lo lắng, AI sẽ giúp vợ xử lý hết!"
-        ];
-
-        // Dark Mode Logic
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            localStorage.setItem('dark_mode', isDark);
-            updateDarkIcon(isDark);
-        }
-
-        function updateDarkIcon(isDark) {
-            const icon = document.getElementById('dark-icon');
-            if (isDark) {
-                icon.innerHTML = '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-11.314l.707.707m11.314 11.314l.707.707M12 5a7 7 0 1 0 0 14 7 7 0 0 0 0-14z"/>';
-            } else {
-                icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-            }
-        }
-
-        // Init
         window.onload = () => {
-            // Restore Dark Mode
-            if (localStorage.getItem('dark_mode') === 'true') {
-                document.body.classList.add('dark-mode');
-                updateDarkIcon(true);
-            }
-            
-            const savedData = localStorage.getItem('wife_ai_knowledge');
-            if (savedData) {
-                document.getElementById('note-area').value = savedData;
-                notes = savedData;
-            }
+            if (localStorage.getItem('dark_mode') === 'true') document.body.classList.add('dark-mode');
+            document.getElementById('note-area').value = localStorage.getItem('wife_ai_knowledge') || '';
+            document.getElementById('daily-quote').innerText = "Chúc vợ một ngày làm việc thật hiệu quả và vui vẻ!";
             renderTodos();
-            document.getElementById('daily-quote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
-            initClock();
+            startClock();
         };
 
-        // Tabs
         function switchTab(mode) {
-            const edit = document.getElementById('note-area');
-            const preview = document.getElementById('preview-area');
-            const btnEdit = document.getElementById('tab-edit');
-            const btnPreview = document.getElementById('tab-preview');
-
-            if (mode === 'preview') {
+            const edit = document.getElementById('note-area'), preview = document.getElementById('preview-area');
+            const bE = document.getElementById('tab-edit'), bP = document.getElementById('tab-preview');
+            if(mode === 'preview') {
                 preview.innerHTML = marked.parse(edit.value);
-                edit.style.display = 'none';
-                preview.style.display = 'block';
-                btnPreview.classList.add('active');
-                btnEdit.classList.remove('active');
+                edit.style.display = 'none'; preview.style.display = 'block';
+                bP.classList.add('active'); bE.classList.remove('active');
             } else {
-                edit.style.display = 'block';
-                preview.style.display = 'none';
-                btnEdit.classList.add('active');
-                btnPreview.classList.remove('active');
+                edit.style.display = 'block'; preview.style.display = 'none';
+                bE.classList.add('active'); bP.classList.remove('active');
             }
         }
 
-        // To-do Logic
         function renderTodos() {
-            const list = document.getElementById('todo-list');
-            list.innerHTML = todos.map((t, i) => `
+            document.getElementById('todo-list').innerHTML = todos.map((t, i) => `
                 <div class="todo-item ${t.done ? 'done' : ''}">
-                    <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTodo(${i})">
-                    <span onclick="toggleTodo(${i})">${t.text}</span>
-                    <span style="margin-left:auto; cursor:pointer; color:red;" onclick="deleteTodo(${i})">×</span>
+                    <input type="checkbox" ${t.done ? 'checked' : ''} onchange="todos[${i}].done=!todos[${i}].done;renderTodos()">
+                    <span>${t.text}</span>
                 </div>
             `).join('');
             localStorage.setItem('wife_todos', JSON.stringify(todos));
         }
 
-        function addTodo() {
-            const text = prompt("Việc cần làm mới:");
-            if (text) {
-                todos.push({ text, done: false });
-                renderTodos();
-            }
-        }
-        function toggleTodo(i) { todos[i].done = !todos[i].done; renderTodos(); }
-        function deleteTodo(i) { todos.splice(i, 1); renderTodos(); }
-
-        // Templates
-        function applyTemplate(type) {
-            const area = document.getElementById('note-area');
-            const templates = {
-                summarize: "Hãy tóm tắt ngắn gọn các ý chính của đoạn văn sau:\n\n",
-                grammar: "Hãy kiểm tra lỗi chính tả và diễn đạt lại đoạn văn sau cho chuyên nghiệp hơn:\n\n",
-                email: "Dựa trên nội dung sau, hãy viết một email gửi đối tác thật lịch sự:\n\n"
-            };
-            area.value = templates[type] + area.value;
-            switchTab('edit');
+        function addTodo() { 
+            const text = prompt("Việc mới:"); 
+            if(text) { todos.push({text, done:false}); renderTodos(); } 
         }
 
-        // UI Utils
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('dark_mode', document.body.classList.contains('dark-mode'));
+        }
+
         function toggleFocusMode() { document.body.classList.toggle('focus-mode'); }
-        
-        async function selectFolder() {
-            try {
-                directoryHandle = await window.showDirectoryPicker();
-                document.getElementById('folder-info').innerText = "Thư mục: " + directoryHandle.name;
-            } catch (err) {}
-        }
 
-        function showLoading(duration = 800) {
-            const overlay = document.getElementById('loading-overlay');
-            overlay.style.display = 'flex';
-            return new Promise(r => setTimeout(() => { overlay.style.display = 'none'; r(); }, duration));
-        }
+        async function selectFolder() { try { directoryHandle = await window.showDirectoryPicker(); } catch(e){} }
 
         async function saveAsNewFile() {
+            if(!directoryHandle) return alert("Chọn thư mục lưu trước nhé!");
             const content = document.getElementById('note-area').value;
-            if (!content || !directoryHandle) {
-                alert(!directoryHandle ? "Vui lòng chọn thư mục lưu." : "Nội dung trống.");
-                return;
-            }
-            await showLoading();
-            try {
-                let lastIndex = parseInt(localStorage.getItem('last_file_index') || '0') + 1;
-                const fileHandle = await directoryHandle.getFileHandle(`kienthuc_${lastIndex}.md`, { create: true });
-                const writable = await fileHandle.createWritable();
-                await writable.write(content);
-                await writable.close();
-                localStorage.setItem('last_file_index', lastIndex);
-                showNotification("Đã lưu file thành công!");
-            } catch (err) { alert(err.message); }
+            let idx = parseInt(localStorage.getItem('last_idx') || '0') + 1;
+            const h = await directoryHandle.getFileHandle(`kienthuc_${idx}.md`, {create:true});
+            const w = await h.createWritable(); await w.write(content); await w.close();
+            localStorage.setItem('last_idx', idx);
+            alert("Đã lưu kienthuc_" + idx + ".md");
         }
 
         async function loadFileForAI() {
             try {
-                const fileHandles = await window.showOpenFilePicker({ multiple: true });
-                await showLoading();
-                let combined = "Dưới đây là kiến thức tôi đã lưu:\n\n";
-                for (const h of fileHandles) {
-                    const f = await h.getFile();
-                    const text = await f.text();
-                    combined += `[FILE: ${f.name}]\n${text}\n\n`;
-                }
-                navigator.clipboard.writeText(combined);
-                showNotification("Đã copy toàn bộ kiến thức!");
-            } catch (err) {}
-        }
-
-        function copyKnowledgeForAI() {
-            const content = document.getElementById('note-area').value;
-            navigator.clipboard.writeText(`Dưới đây là ghi chú hiện tại, hãy nhớ nó:\n\n${content}`);
-            showNotification("Đã copy!");
-        }
-
-        function showNotification(msg) {
-            const n = document.getElementById('notification');
-            n.innerText = msg;
-            setTimeout(() => n.innerText = "Tự động lưu...", 3000);
-        }
-
-        function openChat(url) {
-            window.open(url, '_blank', 'width=1000,height=800');
+                const hs = await window.showOpenFilePicker({multiple:true});
+                let c = "";
+                for(const h of hs) { const f = await h.getFile(); c += `[${f.name}]\n${await f.text()}\n\n`; }
+                navigator.clipboard.writeText(c);
+                alert("Đã copy toàn bộ file để dán vào AI!");
+            } catch(e){}
         }
 
         function backupData() {
-            const data = { notes: document.getElementById('note-area').value, todos };
-            const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'wife_hub_backup.json';
-            a.click();
+            const blob = new Blob([JSON.stringify({notes:document.getElementById('note-area').value, todos})], {type:'application/json'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='backup.json'; a.click();
         }
 
-        function searchNote(query) {
-            const area = document.getElementById('note-area');
-            if (!query) return;
-            const idx = area.value.toLowerCase().indexOf(query.toLowerCase());
-            if (idx !== -1) {
-                area.focus();
-                area.setSelectionRange(idx, idx + query.length);
-            }
-        }
+        document.getElementById('note-area').oninput = (e) => localStorage.setItem('wife_ai_knowledge', e.target.value);
 
-        // Auto Save
-        document.getElementById('note-area').oninput = (e) => {
-            localStorage.setItem('wife_ai_knowledge', e.target.value);
-        };
-
-        // Clock Logic
-        function initClock() {
+        function startClock() {
             setInterval(() => {
                 const now = new Date();
                 const s = now.getSeconds(), m = now.getMinutes(), h = now.getHours();
-                document.getElementById('sec').style.transform = `rotateZ(${s * 6}deg)`;
-                document.getElementById('min').style.transform = `rotateZ(${m * 6}deg)`;
-                document.getElementById('hour').style.transform = `rotateZ(${(h % 12) * 30 + m * 0.5}deg)`;
+                document.getElementById('sec').style.transform = `rotate(${s*6}deg)`;
+                document.getElementById('min').style.transform = `rotate(${m*6}deg)`;
+                document.getElementById('hour').style.transform = `rotate(${(h%12)*30 + m*0.5}deg)`;
+                if(s % 10 === 0) {
+                    document.getElementById('eyelid-l').classList.add('blink');
+                    document.getElementById('eyelid-r').classList.add('blink');
+                    setTimeout(() => {
+                        document.getElementById('eyelid-l').classList.remove('blink');
+                        document.getElementById('eyelid-r').classList.remove('blink');
+                    }, 200);
+                }
             }, 1000);
         }
+
+        function openChat(url) { window.open(url, '_blank', 'width=1000,height=800'); }
     </script>
-    <!-- Thêm CSS đồng hồ mèo thu nhỏ từ code cũ vào đây nếu cần -->
-    <style>
-        .clock__inner { background: #fff; border: 2px solid #F27398; border-radius: 50%; height: 100%; position: relative; z-index: 6; }
-        .clock__needle { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; background: #333; border-radius: 4px; }
-        #sec { width: 2px; height: 40%; background: #F27398; }
-        #min { width: 4px; height: 35%; }
-        #hour { width: 6px; height: 25%; }
-        .cat__face { background: #9D9D9D; width: 100%; height: 80%; border-radius: 50%; position: absolute; top: -40%; z-index: 5; }
-    </style>
 </body>
 </html>
