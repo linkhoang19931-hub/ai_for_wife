@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Knowledge Hub</title>
+    <title>AI Knowledge Hub Pro</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
             --primary: #4F46E5;
@@ -17,6 +18,9 @@
             --text-sub: #6B7280;
             --border: #E5E7EB;
             --sidebar-bg: #FFFFFF;
+            --accent-green: #10B981;
+            --accent-orange: #F59E0B;
+            --accent-purple: #8B5CF6;
         }
 
         * {
@@ -32,24 +36,26 @@
             height: 100vh;
             display: flex;
             overflow: hidden;
+            transition: all 0.3s ease;
         }
 
-        /* Sidebar */
+        /* Sidebar Pro */
         aside {
-            width: 280px;
+            width: 320px;
             background: var(--sidebar-bg);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            padding: 24px;
+            padding: 20px;
             z-index: 10;
+            overflow-y: auto;
         }
 
         .brand {
             font-size: 1.1rem;
             font-weight: 700;
             letter-spacing: -0.02em;
-            margin-bottom: 32px;
+            margin-bottom: 24px;
             color: var(--primary);
             display: flex;
             align-items: center;
@@ -57,45 +63,54 @@
         }
 
         .nav-group {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .nav-label {
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: 0.7rem;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--text-sub);
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             display: block;
         }
 
         .btn-nav {
             width: 100%;
-            padding: 10px 12px;
+            padding: 8px 10px;
             border-radius: 8px;
             border: 1px solid transparent;
             background: transparent;
             color: var(--text-main);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 500;
             text-align: left;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             transition: all 0.2s;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
-        .btn-nav:hover {
-            background: #F3F4F6;
-        }
+        .btn-nav:hover { background: #F3F4F6; }
+        .btn-nav svg { width: 16px; height: 16px; stroke-width: 2; }
 
-        .btn-nav svg {
-            width: 18px;
-            height: 18px;
-            stroke-width: 2;
+        /* To-do List Styles */
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            padding: 4px 0;
+        }
+        .todo-item input[type="checkbox"] {
+            cursor: pointer;
+        }
+        .todo-item.done {
+            text-decoration: line-through;
+            color: var(--text-sub);
         }
 
         /* Main Content */
@@ -103,73 +118,79 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 32px;
-            gap: 24px;
+            padding: 24px 32px;
+            gap: 20px;
             overflow: hidden;
         }
 
         header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
         }
 
-        .header-info h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
+        .quote-box {
+            font-style: italic;
+            color: var(--primary);
+            font-size: 0.85rem;
+            margin-top: 4px;
         }
 
-        .header-info p {
-            font-size: 0.9rem;
-            color: var(--text-sub);
-        }
-
-        .status-pill {
-            padding: 6px 12px;
-            background: #ECFDF5;
-            color: #065F46;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
+        /* Editor Pro */
+        .editor-header {
             display: flex;
-            align-items: center;
-            gap: 6px;
+            gap: 10px;
+            margin-bottom: -1px;
+        }
+        .tab-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-bottom: none;
+            background: #F3F4F6;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .tab-btn.active {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--bg-card);
+            color: var(--primary);
         }
 
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            background: #10B981;
-            border-radius: 50%;
-        }
-
-        /* Editor Area */
         .editor-container {
             flex: 1;
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 0 12px 12px 12px;
             display: flex;
             flex-direction: column;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             overflow: hidden;
         }
 
-        textarea {
+        #note-area, #preview-area {
             flex: 1;
             padding: 24px;
+            font-size: 1rem;
+            line-height: 1.6;
+            overflow-y: auto;
+        }
+        #note-area {
             border: none;
             resize: none;
             outline: none;
-            font-size: 1rem;
-            line-height: 1.6;
-            color: #374151;
             background: transparent;
         }
+        #preview-area {
+            display: none;
+            background: #fff;
+        }
+        #preview-area h1, #preview-area h2 { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        #preview-area p { margin-bottom: 10px; }
 
         .editor-footer {
-            padding: 16px 24px;
+            padding: 12px 24px;
             background: #FAFBFC;
             border-top: 1px solid var(--border);
             display: flex;
@@ -177,457 +198,63 @@
             align-items: center;
         }
 
+        /* Utils */
+        .search-box {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+            outline: none;
+        }
+
         .btn-primary {
             background: var(--primary);
             color: white;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 8px;
             border: none;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
             display: flex;
-            align-items: center;
-            gap: 8px;
+            align-items: center; gap: 8px;
         }
 
-        .btn-primary:hover {
-            background: var(--primary-hover);
-        }
-
-        .btn-primary svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        #notification {
-            font-size: 0.85rem;
-            color: var(--text-sub);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        /* Cat Loading Styles */
+        /* Cat Animation Fix */
         #loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(4px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(4px);
+            display: none; justify-content: center; align-items: center; z-index: 9999;
         }
+        .loading-cat { transform: scale(0.5); }
 
-        .loading-cat {
-            position: relative;
-            display: inline-block;
-            width: 300px;
-            height: 220px;
-            animation: 2.74s linear infinite loading-cat;
-            transform: scale(0.6);
-        }
+        /* Focus Mode */
+        body.focus-mode aside { display: none; }
+        body.focus-mode main { padding: 40px 15%; }
 
-        .loading-cat .head, .loading-cat .foot, .loading-cat .body {
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            margin: auto;
-            border-radius: 50%;
-            width: 240px;
-            height: 240px;
-        }
+        /* Cat Clock Small */
+        .cat-clock-wrapper { transform: scale(0.25); height: 120px; margin-top: 10px; }
 
-        .loading-cat .body {
-            background-image: radial-gradient(transparent 0%, transparent 35%, #383c4b 35%, #383c4b 39%, #eda65d 39%, #eda65d 46%, #f2c089 46%, #f2c089 60%, #eda65d 60%, #eda65d 67%, #383c4b 67%, #383c4b 100%);
-            animation: 2.74s linear infinite body;
-        }
-
-        .loading-cat .head:before, .loading-cat .foot:before {
-            background-image: radial-gradient(transparent 0%, transparent 35%, #383c4b 35%, #383c4b 39%, #eda65d 39%, #eda65d 67%, #383c4b 67%, #383c4b 100%);
-        }
-
-        .loading-cat .head:before {
-            content: "";
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            border-radius: 50%;
-            clip-path: polygon(100% 20%, 50% 50%, 70% -10%);
-        }
-
-        .loading-cat .head:after {
-            content: "";
-            width: 66px;
-            height: 40px;
-            position: absolute;
-            top: 13px;
-            right: 63px;
-            background-image: linear-gradient(#f9fafb 65%, transparent 65%), radial-gradient(#f9fafb 51%, #383c4b 55%, #383c4b 68%, transparent 70%);
-            transform: rotate(-66deg);
-        }
-
-        .loading-cat .head .face {
-            width: 80px;
-            height: 60px;
-            left: 145px;
-            top: 29px;
-            position: absolute;
-            transform: rotate(-47deg);
-            background: radial-gradient(circle, #f2c089 0%, #f2c089 23%, transparent 23%) -3px 17px no-repeat, radial-gradient(circle, #383c4b 0%, #383c4b 6%, transparent 6%) 12px -12px no-repeat, radial-gradient(circle, #383c4b 0%, #383c4b 6%, transparent 6%) -12px -12px no-repeat, radial-gradient(#eda65d 0%, #eda65d 15%, transparent 15%) 0 -11px no-repeat, radial-gradient(circle, transparent 5%, #383c4b 5%, #383c4b 10%, transparent 10%) -3px -5px no-repeat, radial-gradient(circle, transparent 5%, #383c4b 5%, #383c4b 10%, transparent 10%) 3px -5px no-repeat, radial-gradient(circle, #eda65d 45%, transparent 45%) 0 -3px, linear-gradient(transparent 35%, #383c4b 35%, #383c4b 41%, transparent 41%, transparent 44%, #383c4b 44%, #383c4b 50%, transparent 50%, transparent 53%, #383c4b 53%, #383c4b 59%, transparent 59%);
-        }
-
-        .loading-cat .foot {
-            animation: 2.74s linear infinite foot;
-        }
-
-        .loading-cat .foot:before, .loading-cat .foot:after {
-            content: "";
-            width: 100%;
-            height: 100%;
-            position: absolute;
-        }
-
-        .loading-cat .foot:before {
-            border-radius: 50%;
-            clip-path: polygon(50% 50%, 0% 50%, 0% 25%);
-        }
-
-        .loading-cat .foot .tummy-end {
-            width: 24px;
-            height: 24px;
-            position: absolute;
-            border-radius: 50%;
-            background-color: #f2c089;
-            left: 19px;
-            top: 105px;
-        }
-
-        .loading-cat .foot .bottom {
-            width: 48px;
-            height: 15px;
-            position: absolute;
-            top: 78px;
-            left: 12px;
-            border: 0 solid #383c4b;
-            border-top-width: 6.5px;
-            border-radius: 50%;
-            transform: rotate(21deg);
-            background: #eda65d;
-        }
-
-        .loading-cat .hands, .loading-cat .legs, .loading-cat .foot:after {
-            width: 10px;
-            height: 25px;
-            position: absolute;
-            border: 6.5px solid #383c4b;
-            background-color: #eda65d;
-        }
-
-        .loading-cat .hands {
-            border-top: 0;
-            border-radius: 0 0 13px 13px;
-        }
-
-        .loading-cat .hands.left {
-            top: 144px;
-            right: 161px;
-            transform: rotate(-20deg);
-        }
-
-        .loading-cat .hands.right {
-            top: 123px;
-            right: 128px;
-            transform: rotate(-25deg);
-        }
-
-        .loading-cat .legs {
-            border-bottom: 0;
-            border-radius: 13px 13px 0 0;
-        }
-
-        .loading-cat .legs.left {
-            top: 65px;
-            left: 49px;
-            transform: rotate(25deg);
-        }
-
-        .loading-cat .legs.right {
-            top: 53px;
-            left: 12px;
-            transform: rotate(22deg);
-        }
-
-        .loading-cat .foot:after {
-            width: 8px;
-            height: 40px;
-            top: 42px;
-            left: 36px;
-            z-index: -1;
-            transform: rotate(25deg);
-            background-color: #c6823b;
-            border-bottom: 0;
-            border-radius: 12px 12px 0 0;
-        }
-
-        @keyframes body {
-            0%, 100% { clip-path: polygon(50% 50%, 0% 50%, 0% 100%, 100% 100%, 100% 20%); }
-            10% { clip-path: polygon(50% 50%, 30% 120%, 50% 100%, 100% 100%, 100% 20%); }
-            20% { clip-path: polygon(50% 50%, 100% 90%, 120% 90%, 100% 100%, 100% 20%); }
-            40%, 50% { clip-path: polygon(50% 50%, 100% 45%, 120% 45%, 120% 50%, 100% 20%); }
-            65% { clip-path: polygon(50% 50%, 100% 65%, 120% 65%, 120% 50%, 100% 20%); }
-            80% { clip-path: polygon(50% 50%, 75% 130%, 120% 65%, 120% 50%, 100% 20%); }
-            90% { clip-path: polygon(50% 50%, -20% 110%, 50% 120%, 100% 100%, 100% 20%); }
-        }
-
-        @keyframes loading-cat {
-            0% { transform: rotate(0deg) scale(0.6); }
-            10% { transform: rotate(-80deg) scale(0.6); }
-            20% { transform: rotate(-180deg) scale(0.6); }
-            40% { transform: rotate(-245deg) scale(0.6); }
-            50% { transform: rotate(-250deg) scale(0.6); }
-            68% { transform: rotate(-300deg) scale(0.6); }
-            90% { transform: rotate(-560deg) scale(0.6); }
-            100% { transform: rotate(-720deg) scale(0.6); }
-        }
-
-        @keyframes foot {
-            0%, 100% { transform: rotate(-10deg); }
-            10% { transform: rotate(-100deg); }
-            20% { transform: rotate(-145deg); }
-            35% { transform: rotate(-190deg); }
-            50% { transform: rotate(-195deg); }
-            70% { transform: rotate(-165deg); }
-        }
-
-        /* Cat Clock Styles */
-        .cat-clock-wrapper {
-            margin-top: auto;
+        /* Prompt Chips */
+        .prompt-chips {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            padding-top: 50px;
-            padding-bottom: 20px;
-            transform: scale(0.35);
-            transform-origin: bottom center;
-            height: 180px;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
         }
-
-        .cat-clock-container {
-            position: relative;
-            height: 6em;
-            width: 6em;
-            font-size: 40px;
+        .chip {
+            padding: 4px 10px;
+            background: #EEF2FF;
+            color: var(--primary);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid #E0E7FF;
         }
-
-        .clock__inner {
-            background: #fff;
-            border: 0.2em solid #F27398;
-            border-radius: 50%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0%;
-            width: 100%;
-            z-index: 6;
-        }
-        .clock__nums {
-            background: #F27398;
-            border-radius: 100%;
-            display: block;
-            height: 0.5em;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 0.5em;
-            z-index: 10;
-        }
-        .clock__num {
-            height: 2.8em;
-            position: absolute;
-            left: 50%;
-            bottom: 0.25em;
-            margin-left: -0.25em;
-            text-align: center;
-            transform-origin: center bottom;
-            width: 0.5em;
-            z-index: 3;
-        }
-        .clock__num--1 { transform: rotate(30deg); }
-        .clock__num--2 { transform: rotate(60deg); }
-        .clock__num--3 { transform: rotate(90deg); }
-        .clock__num--4 { transform: rotate(120deg); }
-        .clock__num--5 { transform: rotate(150deg); }
-        .clock__num--6 { transform: rotate(180deg); }
-        .clock__num--7 { transform: rotate(210deg); }
-        .clock__num--8 { transform: rotate(240deg); }
-        .clock__num--9 { transform: rotate(270deg); }
-        .clock__num--10 { transform: rotate(300deg); }
-        .clock__num--11 { transform: rotate(330deg); }
-        .clock__num--12 { transform: rotate(360deg); }
-        
-        .clock__num__text {
-            color: #95a5a6;
-            display: inline-block;
-            font-size: 0.8em;
-        }
-        .clock__num__text--1 { transform: rotate(-30deg); }
-        .clock__num__text--2 { transform: rotate(-60deg); }
-        .clock__num__text--3 { transform: rotate(-90deg); }
-        .clock__num__text--4 { transform: rotate(-120deg); }
-        .clock__num__text--5 { transform: rotate(-150deg); }
-        .clock__num__text--6 { transform: rotate(-180deg); }
-        .clock__num__text--7 { transform: rotate(-210deg); }
-        .clock__num__text--8 { transform: rotate(-240deg); }
-        .clock__num__text--9 { transform: rotate(-270deg); }
-        .clock__num__text--10 { transform: rotate(-300deg); }
-        .clock__num__text--11 { transform: rotate(-330deg); }
-        .clock__num__text--12 { transform: rotate(-360deg); }
-        
-        .clock__needles {
-            height: 0.5em;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 0.5em;
-            z-index: 9;
-        }
-        .clock__needle {
-            border-radius: 0.08em 0.08em 0 0;
-            height: 2em;
-            margin-left: -0.08em;
-            position: absolute;
-            bottom: 0.25em;
-            left: 50%;
-            transform-origin: center bottom;
-            width: 0.16em;
-        }
-        .clock__needle--hour { background: #95a5a6; height: 1.4em; }
-        .clock__needle--min { background: #F27398; }
-        .clock__needle--sec { background: #aaa; margin-left: -0.04em; width: 0.08em; }
-        .clock__needle--sec:before {
-            background: #aaa;
-            border-radius: 0 0 0.08em 0.08em;
-            content: "";
-            height: 0.8em;
-            margin-left: -0.04em;
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            width: 0.08em;
-        }
-
-        .cat {
-            height: 6em;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-        }
-        .cat__face {
-            background: #9D9D9D;
-            border-radius: 50%;
-            height: 4em;
-            overflow: hidden;
-            position: absolute;
-            top: -3.5em;
-            left: 0%;
-            width: 6em;
-            z-index: 5;
-        }
-        .cat__face__pattern { background: #6D6D6D; position: absolute; }
-        .cat__face__pattern:before, .cat__face__pattern:after { background: #6D6D6D; content: ""; position: absolute; }
-        .cat__face__pattern--top { border-radius: 0 0 50% 50%; height: 1em; margin-left: -0.1em; top: 0; left: 50%; width: 0.2em; }
-        .cat__face__pattern--top:before { border-radius: 0 0 50% 50%; height: 0.6em; margin-left: -0.6em; top: 0; left: 50%; width: 0.2em; }
-        .cat__face__pattern--top:after { border-radius: 0 0 50% 50%; height: 0.6em; margin-right: -0.6em; top: 0; right: 50%; width: 0.2em; }
-        .cat__face__pattern--left { border-radius: 0 50% 50% 0; height: 0.2em; margin-top: -0.1em; top: 50%; left: 0; width: 1em; }
-        .cat__face__pattern--left:before { border-radius: 0 50% 50% 0; height: 0.2em; margin-top: -0.6em; top: 50%; left: 0; width: 0.6em; }
-        .cat__face__pattern--left:after { border-radius: 0 50% 50% 0; height: 0.2em; margin-bottom: -0.6em; bottom: 50%; left: 0; width: 0.6em; }
-        .cat__face__pattern--right { border-radius: 50% 0 0 50%; height: 0.2em; margin-top: -0.1em; top: 50%; right: 0; width: 1em; }
-        .cat__face__pattern--right:before { border-radius: 50% 0 0 50%; height: 0.2em; margin-top: -0.6em; top: 50%; right: 0; width: 0.6em; }
-        .cat__face__pattern--right:after { border-radius: 50% 0 0 50%; height: 0.2em; margin-bottom: -0.6em; bottom: 50%; right: 0; width: 0.6em; }
-        
-        .cat__ears { height: 1em; position: absolute; top: -3.5em; left: 0; width: 100%; z-index: -1; }
-        .cat__ears__ear { background: #9D9D9D; border-radius: 25%; height: 1.8em; position: absolute; top: -0.3em; width: 1.8em; }
-        .cat__ears__ear:before { content: ""; background: #f4e8da; border-radius: 25%; height: 1.4em; margin-top: -0.7em; margin-left: -0.7em; position: absolute; top: 50%; left: 50%; width: 1.4em; }
-        .cat__ears__ear--left { left: 0.5em; transform: rotate(20deg); }
-        .cat__ears__ear--right { right: 0.5em; transform: rotate(-20deg); }
-        
-        .cat__eyes { height: 1em; position: absolute; top: 1em; width: 100%; }
-        .cat__eyes__eye { background: #333; border: 0.06em solid #333; border-top: 0.12em solid #333; height: 1em; overflow: hidden; position: absolute; bottom: 0; width: 1.3em; }
-        .cat__eyes__eye:before { background: #69CC68; content: ""; height: 1em; position: absolute; top: 0; width: 1.2em; }
-        .cat__eyes__eye:after { background: #333; border-radius: 50%; content: ""; height: 1em; margin-top: -0.25em; position: absolute; top: 0em; width: 1em; }
-        .cat__eyes__eye span { background: #fff; border-radius: 50%; height: 0.2em; margin-left: -0.1em; margin-top: -0.2em; position: absolute; top: 50%; left: 50%; width: 0.2em; z-index: 1; }
-        .cat__eyes__eye--left { border-radius: 0 70% 0 70%; left: 1.1em; }
-        .cat__eyes__eye--left:before { border-radius: 0 50% 50% 50%; left: 0; }
-        .cat__eyes__eye--left:after { margin-left: -0.45em; left: 50%; }
-        .cat__eyes__eye--right { border-radius: 70% 0 70% 0; right: 1.1em; }
-        .cat__eyes__eye--right:before { border-radius: 50% 0 50% 50%; right: 0; }
-        .cat__eyes__eye--right:after { margin-right: -0.45em; right: 50%; }
-        .cat__eyes__eyelid { background: #9D9D9D; height: 0; position: absolute; left: 0; top: 0; width: 100%; z-index: 10; }
-        
-        .cat__nose { border-top: 0.5em solid #F26752; border-left: 0.5em solid transparent; border-right: 0.5em solid transparent; height: 0.5em; margin-left: -0.5em; position: absolute; top: 2.5em; left: 50%; width: 1em; }
-        .cat__mouth { margin-left: -1em; overflow: hidden; position: absolute; top: 3em; left: 50%; height: 1em; width: 2em; }
-        .cat__mouth:before, .cat__mouth:after { border: 0.01em solid #333; border-radius: 50%; content: ""; display: block; height: 0.8em; position: absolute; top: -0.4em; width: 50%; }
-        .cat__mouth:before { margin-left: -0.04em; left: 0; }
-        .cat__mouth:after { margin-right: -0.04em; right: 0; }
-        
-        .cat__whiskers { height: 1em; position: absolute; top: -1.5em; left: 0; width: 100%; z-index: 8; }
-        .cat__whiskers__whisker { height: 1em; position: absolute; top: 0; width: 2.5em; }
-        .cat__whiskers__whisker:before, .cat__whiskers__whisker:after, .cat__whiskers__whisker span { border-top: 0.03em solid #eee; height: 0.03em; position: absolute; left: 0; width: 2.5em; }
-        .cat__whiskers__whisker--left { margin-left: -0.5em; left: 0; }
-        .cat__whiskers__whisker--left:before { content: ""; top: 0; transform: rotate(10deg); }
-        .cat__whiskers__whisker--left:after { content: ""; margin-top: -0.005em; top: 0.5em; }
-        .cat__whiskers__whisker--left span { bottom: 0; transform: rotate(-10deg); }
-        .cat__whiskers__whisker--right { margin-right: -0.5em; right: 0; }
-        .cat__whiskers__whisker--right:before { content: ""; top: 0; transform: rotate(-10deg); }
-        .cat__whiskers__whisker--right:after { content: ""; margin-top: -0.005em; top: 0.5em; }
-        .cat__whiskers__whisker--right span { bottom: 0; transform: rotate(10deg); }
-        
-        .cat__hands { height: 1em; position: absolute; top: -0.5em; left: 0; width: 100%; z-index: 9; }
-        .cat__hands__hand { background: #8D8D8D; border-radius: 50%; height: 1em; overflow: hidden; position: absolute; top: 0.5em; width: 2em; }
-        .cat__hands__hand:before { border-right: 0.08em solid #333; content: ""; position: absolute; bottom: 0; left: 0; height: 0.3em; width: 0.6em; }
-        .cat__hands__hand:after { border-left: 0.08em solid #333; content: ""; position: absolute; bottom: 0; right: 0; height: 0.3em; width: 0.6em; }
-        .cat__hands__hand--left { left: 0; transform: rotate(-20deg); }
-        .cat__hands__hand--right { right: 0; transform: rotate(20deg); }
-        
-        .cat__legs { height: 1em; position: absolute; bottom: 0em; left: 0; width: 100%; z-index: 8; }
-        .cat__legs:after { background: #9D9D9D; border-radius: 100%; content: ""; height: 0.5em; margin-bottom: -0.25em; position: absolute; bottom: 0em; right: 0; width: 0.5em; z-index: 2; }
-        .cat__legs__leg { background: #8D8D8D; border-radius: 50%; height: 1em; overflow: hidden; position: absolute; top: 0; width: 2em; }
-        .cat__legs__leg:before { border-right: 0.08em solid #333; content: ""; position: absolute; top: 0; left: 0; height: 0.3em; width: 0.6em; }
-        .cat__legs__leg:after { border-left: 0.08em solid #333; content: ""; position: absolute; top: 0; right: 0; height: 0.3em; width: 0.6em; }
-        .cat__legs__leg--left { left: 0; transform: rotate(20deg); }
-        .cat__legs__leg--right { right: 0; transform: rotate(-20deg); }
-        
-        .cat__tail { height: 2em; position: absolute; bottom: 0.04em; left: 0; width: 100%; z-index: 0; }
-        .cat__tail__inner { background: #9D9D9D; border-radius: 0 0 3em 3em; height: 2em; overflow: hidden; position: absolute; top: 2em; left: 3em; width: 3em; }
-        .cat__tail__inner:before { background: var(--sidebar-bg); border-radius: 0 0 2em 2em; content: ""; height: 3em; margin-left: -1em; overflow: hidden; position: absolute; top: -1.5em; left: 50%; width: 2em; z-index: 4; }
-        .cat__tail__pattern { background: #6D6D6D; height: 0.2em; position: absolute; width: 0.5em; }
-        .cat__tail__pattern:nth-child(odd) { border-radius: 50% 0 0 50%; }
-        .cat__tail__pattern:nth-child(even) { border-radius: 0 50% 50% 0; }
-        .cat__tail__pattern--1 { top: 0.2em; left: 0.1em; }
-        .cat__tail__pattern--2 { top: 0.7em; left: -0.1em; transform: rotate(-30deg); }
-        .cat__tail__pattern--3 { top: 1em; left: 0.3em; transform: rotate(-50deg); }
-        .cat__tail__pattern--4 { top: 1.5em; left: 0.5em; transform: rotate(-60deg); }
-        .cat__tail__pattern--5 { top: 1.5em; left: 1.1em; transform: rotate(-80deg); }
-        .cat__tail__pattern--6 { top: 1.7em; left: 1.6em; transform: rotate(-100deg); }
-        .cat__tail__pattern--7 { top: 1.2em; left: 2em; transform: rotate(-130deg); }
-        .cat__tail__pattern--8 { top: 0.9em; left: 2.6em; transform: rotate(-150deg); }
-        .cat__tail__pattern--9 { top: 0.4em; left: 2.4em; transform: rotate(-180deg); z-index: 3; }
-
-        @keyframes blink-eye { 0% { height: 0; } 50% { height: 100%; } 100% { height: 0; } }
-        .blink { animation: blink-eye infinite 1s; }
+        .chip:hover { background: #E0E7FF; }
     </style>
 </head>
 <body>
@@ -637,325 +264,291 @@
             <div class="body"></div>
             <div class="head"><div class="face"></div></div>
             <div class="foot">
-                <div class="tummy-end"></div>
-                <div class="bottom"></div>
-                <div class="legs left"></div>
-                <div class="legs right"></div>
+                <div class="tummy-end"></div><div class="bottom"></div><div class="legs left"></div><div class="legs right"></div>
             </div>
-            <div class="hands left"></div>
-            <div class="hands right"></div>
+            <div class="hands left"></div><div class="hands right"></div>
         </div>
     </div>
 
     <aside>
         <div class="brand">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
-            KNOWLEDGE HUB
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/></svg>
+            AI HUB PRO
         </div>
 
+        <input type="text" class="search-box" placeholder="Tìm kiếm ghi chú..." oninput="searchNote(this.value)">
+
         <div class="nav-group">
-            <span class="nav-label">Cấu hình</span>
+            <span class="nav-label">Công cụ nạp</span>
             <button class="btn-nav" onclick="selectFolder()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
-                Chọn thư mục lưu
-            </button>
-        </div>
-
-        <div class="nav-group">
-            <span class="nav-label">Trò chuyện</span>
-            <button class="btn-nav" onclick="openChat('https://chatgpt.com')">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                Mở ChatGPT
-            </button>
-            <button class="btn-nav" onclick="openChat('https://gemini.google.com')">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                Mở Gemini
-            </button>
-        </div>
-
-        <div class="nav-group">
-            <span class="nav-label">Công cụ</span>
-            <button class="btn-nav" onclick="copyKnowledgeForAI()">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 7h10v10H7z"/><path d="M16 3H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
-                Copy ghi chú hiện tại
+                Thư mục lưu
             </button>
             <button class="btn-nav" onclick="loadFileForAI()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                Nạp kiến thức từ file
+                Nạp file vào AI
             </button>
         </div>
 
-        <div id="folder-info" style="font-size: 0.75rem; color: var(--text-sub);">
-            Thư mục: Chưa chọn
+        <div class="nav-group">
+            <span class="nav-label">Prompt Mẫu</span>
+            <div class="prompt-chips">
+                <div class="chip" onclick="applyTemplate('summarize')">Tóm tắt</div>
+                <div class="chip" onclick="applyTemplate('grammar')">Sửa lỗi</div>
+                <div class="chip" onclick="applyTemplate('email')">Viết Mail</div>
+            </div>
         </div>
 
-        <!-- Cat Clock -->
-        <div class="cat-clock-wrapper">
-            <div class="cat-clock-container">
-                <div class="clock">
-                    <div class="clock__inner">
-                        <ul class="clock__nums">
-                            <li class="clock__num clock__num--1"><span class="clock__num__text clock__num__text--1">1</span></li>
-                            <li class="clock__num clock__num--2"><span class="clock__num__text clock__num__text--2">2</span></li>
-                            <li class="clock__num clock__num--3"><span class="clock__num__text clock__num__text--3">3</span></li>
-                            <li class="clock__num clock__num--4"><span class="clock__num__text clock__num__text--4">4</span></li>
-                            <li class="clock__num clock__num--5"><span class="clock__num__text clock__num__text--5">5</span></li>
-                            <li class="clock__num clock__num--6"><span class="clock__num__text clock__num__text--6">6</span></li>
-                            <li class="clock__num clock__num--7"><span class="clock__num__text clock__num__text--7">7</span></li>
-                            <li class="clock__num clock__num--8"><span class="clock__num__text clock__num__text--8">8</span></li>
-                            <li class="clock__num clock__num--9"><span class="clock__num__text clock__num__text--9">9</span></li>
-                            <li class="clock__num clock__num--10"><span class="clock__num__text clock__num__text--10">10</span></li>
-                            <li class="clock__num clock__num--11"><span class="clock__num__text clock__num__text--11">11</span></li>
-                            <li class="clock__num clock__num--12"><span class="clock__num__text clock__num__text--12">12</span></li>
-                        </ul>
-                        <div class="clock__needles">
-                            <div class="clock__needle clock__needle--hour" id="hour"></div>
-                            <div class="clock__needle clock__needle--min" id="min"></div>
-                            <div class="clock__needle clock__needle--sec" id="sec"></div>
-                        </div>
-                    </div>
-                    <div class="cat">
-                        <div class="cat__ears">
-                            <div class="cat__ears__ear cat__ears__ear--left"></div>
-                            <div class="cat__ears__ear cat__ears__ear--right"></div>
-                        </div>
-                        <div class="cat__whiskers">
-                            <div class="cat__whiskers__whisker cat__whiskers__whisker--left"><span></span></div>
-                            <div class="cat__whiskers__whisker cat__whiskers__whisker--right"><span></span></div>
-                        </div>
-                        <div class="cat__face">
-                            <div class="cat__face__pattern cat__face__pattern--top"></div>
-                            <div class="cat__face__pattern cat__face__pattern--left"></div>
-                            <div class="cat__face__pattern cat__face__pattern--right"></div>
-                            <div class="cat__eyes">
-                                <div class="cat__eyes__eye cat__eyes__eye--left">
-                                    <div class="cat__eyes__eyelid cat__eyes__eyelid--left"></div>
-                                    <span></span>
-                                </div>
-                                <div class="cat__eyes__eye cat__eyes__eye--right">
-                                    <div class="cat__eyes__eyelid cat__eyes__eyelid--right"></div>
-                                    <span></span>
-                                </div>
-                            </div>
-                            <div class="cat__nose"></div>
-                            <div class="cat__mouth"></div>
-                        </div>
-                        <div class="cat__hands">
-                            <div class="cat__hands__hand cat__hands__hand--left"></div>
-                            <div class="cat__hands__hand cat__hands__hand--right"></div>
-                        </div>
-                        <div class="cat__legs">
-                            <div class="cat__legs__leg cat__legs__leg--left"></div>
-                            <div class="cat__legs__leg cat__legs__leg--right"></div>
-                        </div>
-                        <div class="cat__tail">
-                            <div class="cat__tail__inner">
-                                <span class="cat__tail__pattern cat__tail__pattern--1"></span>
-                                <span class="cat__tail__pattern cat__tail__pattern--2"></span>
-                                <span class="cat__tail__pattern cat__tail__pattern--3"></span>
-                                <span class="cat__tail__pattern cat__tail__pattern--4"></span>
-                                <span class="cat__tail__pattern cat__tail__pattern--5"></span>
-                                <span class="cat__tail__pattern cat__tail__pattern--6"></span>
-                                <span class="cat__tail__pattern cat__tail__pattern--7"></span>
-                                <span class="cat__tail__pattern cat__tail__pattern--8"></span>
-                                <span class="cat__tail__pattern cat__tail__pattern--9"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="nav-group">
+            <span class="nav-label">Việc cần làm</span>
+            <div id="todo-list">
+                <!-- Todo items will be injected here -->
             </div>
+            <button class="btn-nav" style="margin-top: 8px; color: var(--primary);" onclick="addTodo()">
+                + Thêm việc mới
+            </button>
+        </div>
+
+        <div class="nav-group" style="margin-top: auto;">
+            <span class="nav-label">Dữ liệu & UI</span>
+            <button class="btn-nav" onclick="toggleFocusMode()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                Chế độ tập trung
+            </button>
+            <button class="btn-nav" onclick="backupData()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                Sao lưu dữ liệu
+            </button>
+        </div>
+
+        <!-- Clock -->
+        <div class="cat-clock-wrapper">
+            <div class="clock"><div class="clock__inner"><ul class="clock__nums"><li class="clock__num clock__num--12"><span>12</span></li></ul><div class="clock__needles"><div class="clock__needle" id="hour"></div><div class="clock__needle" id="min"></div><div class="clock__needle" id="sec"></div></div></div><div class="cat"><div class="cat__face"><div class="cat__eyes"><div class="cat__eyes__eye"><div class="cat__eyes__eyelid"></div></div></div></div></div></div>
         </div>
     </aside>
 
     <main>
         <header>
             <div class="header-info">
-                <h1>Ghi chú kiến thức</h1>
-                <p>Mọi thay đổi đều được tự động lưu nháp tại máy.</p>
+                <h1>Chào buổi sáng, Vợ yêu!</h1>
+                <div class="quote-box" id="daily-quote">Hãy làm việc thật vui vẻ nhé.</div>
             </div>
-            <div class="status-pill">
-                <div class="status-dot"></div>
-                Sẵn sàng
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-primary" style="background: #10a37f;" onclick="openChat('https://chatgpt.com')">ChatGPT</button>
+                <button class="btn-primary" onclick="openChat('https://gemini.google.com')">Gemini</button>
             </div>
         </header>
 
+        <div class="editor-header">
+            <button class="tab-btn active" id="tab-edit" onclick="switchTab('edit')">Soạn thảo</button>
+            <button class="tab-btn" id="tab-preview" onclick="switchTab('preview')">Xem trước</button>
+        </div>
         <div class="editor-container">
-            <textarea id="note-area" placeholder="Bắt đầu ghi lại những kiến thức quan trọng..."></textarea>
+            <textarea id="note-area" placeholder="Dán nội dung chat hoặc ghi chú tại đây..."></textarea>
+            <div id="preview-area" class="markdown-body"></div>
+            
             <div class="editor-footer">
-                <div id="notification">Đã lưu file thành công!</div>
-                <button class="btn-primary" onclick="saveAsNewFile()">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                    Lưu file mới
-                </button>
+                <div id="notification" style="font-size: 0.8rem; color: var(--accent-green);">Tự động lưu...</div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-nav" onclick="copyKnowledgeForAI()" style="width: auto; background: #EEF2FF; color: var(--primary);">Copy cho AI</button>
+                    <button class="btn-primary" onclick="saveAsNewFile()">
+                        Lưu file mới
+                    </button>
+                </div>
             </div>
         </div>
     </main>
 
     <script>
-        const noteArea = document.getElementById('note-area');
-        const notification = document.getElementById('notification');
-        const folderInfo = document.getElementById('folder-info');
-        const loadingOverlay = document.getElementById('loading-overlay');
+        // Data & State
+        let notes = "";
+        let todos = JSON.parse(localStorage.getItem('wife_todos') || '[]');
         let directoryHandle = null;
 
-        // Load data
+        const quotes = [
+            "Hôm nay là một ngày tuyệt vời để thành công!",
+            "Vợ làm việc chăm chỉ rồi, nhớ nghỉ ngơi nhé.",
+            "Nụ cười của vợ là động lực của chồng.",
+            "Từng bước nhỏ sẽ dẫn đến thành công lớn.",
+            "Đừng lo lắng, AI sẽ giúp vợ xử lý hết!"
+        ];
+
+        // Init
         window.onload = () => {
             const savedData = localStorage.getItem('wife_ai_knowledge');
-            if (savedData) noteArea.value = savedData;
+            if (savedData) {
+                document.getElementById('note-area').value = savedData;
+                notes = savedData;
+            }
+            renderTodos();
+            document.getElementById('daily-quote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
+            initClock();
         };
 
-        // Select Folder
+        // Tabs
+        function switchTab(mode) {
+            const edit = document.getElementById('note-area');
+            const preview = document.getElementById('preview-area');
+            const btnEdit = document.getElementById('tab-edit');
+            const btnPreview = document.getElementById('tab-preview');
+
+            if (mode === 'preview') {
+                preview.innerHTML = marked.parse(edit.value);
+                edit.style.display = 'none';
+                preview.style.display = 'block';
+                btnPreview.classList.add('active');
+                btnEdit.classList.remove('active');
+            } else {
+                edit.style.display = 'block';
+                preview.style.display = 'none';
+                btnEdit.classList.add('active');
+                btnPreview.classList.remove('active');
+            }
+        }
+
+        // To-do Logic
+        function renderTodos() {
+            const list = document.getElementById('todo-list');
+            list.innerHTML = todos.map((t, i) => `
+                <div class="todo-item ${t.done ? 'done' : ''}">
+                    <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTodo(${i})">
+                    <span onclick="toggleTodo(${i})">${t.text}</span>
+                    <span style="margin-left:auto; cursor:pointer; color:red;" onclick="deleteTodo(${i})">×</span>
+                </div>
+            `).join('');
+            localStorage.setItem('wife_todos', JSON.stringify(todos));
+        }
+
+        function addTodo() {
+            const text = prompt("Việc cần làm mới:");
+            if (text) {
+                todos.push({ text, done: false });
+                renderTodos();
+            }
+        }
+        function toggleTodo(i) { todos[i].done = !todos[i].done; renderTodos(); }
+        function deleteTodo(i) { todos.splice(i, 1); renderTodos(); }
+
+        // Templates
+        function applyTemplate(type) {
+            const area = document.getElementById('note-area');
+            const templates = {
+                summarize: "Hãy tóm tắt ngắn gọn các ý chính của đoạn văn sau:\n\n",
+                grammar: "Hãy kiểm tra lỗi chính tả và diễn đạt lại đoạn văn sau cho chuyên nghiệp hơn:\n\n",
+                email: "Dựa trên nội dung sau, hãy viết một email gửi đối tác thật lịch sự:\n\n"
+            };
+            area.value = templates[type] + area.value;
+            switchTab('edit');
+        }
+
+        // UI Utils
+        function toggleFocusMode() { document.body.classList.toggle('focus-mode'); }
+        
         async function selectFolder() {
             try {
                 directoryHandle = await window.showDirectoryPicker();
-                folderInfo.innerText = "Thư mục: " + directoryHandle.name;
-            } catch (err) {
-                console.error(err);
-            }
+                document.getElementById('folder-info').innerText = "Thư mục: " + directoryHandle.name;
+            } catch (err) {}
         }
 
-        // Show/Hide Loading
-        function showLoading(duration = 1500) {
-            loadingOverlay.style.display = 'flex';
-            return new Promise(resolve => setTimeout(() => {
-                loadingOverlay.style.display = 'none';
-                resolve();
-            }, duration));
+        function showLoading(duration = 800) {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.style.display = 'flex';
+            return new Promise(r => setTimeout(() => { overlay.style.display = 'none'; r(); }, duration));
         }
 
-        // Save new file
         async function saveAsNewFile() {
-            const content = noteArea.value;
+            const content = document.getElementById('note-area').value;
             if (!content || !directoryHandle) {
-                alert(!directoryHandle ? "Vui lòng chọn thư mục lưu trước." : "Nội dung trống.");
+                alert(!directoryHandle ? "Vui lòng chọn thư mục lưu." : "Nội dung trống.");
                 return;
             }
-
-            await showLoading(1000);
-
+            await showLoading();
             try {
-                let lastIndex = parseInt(localStorage.getItem('last_file_index') || '0');
-                let index = lastIndex + 1;
-                let fileName = `kienthuc_${index}.md`;
-
-                const fileHandle = await directoryHandle.getFileHandle(fileName, { create: true });
+                let lastIndex = parseInt(localStorage.getItem('last_file_index') || '0') + 1;
+                const fileHandle = await directoryHandle.getFileHandle(`kienthuc_${lastIndex}.md`, { create: true });
                 const writable = await fileHandle.createWritable();
                 await writable.write(content);
                 await writable.close();
-
-                localStorage.setItem('last_file_index', index);
-                showNotification(`Đã lưu ${fileName}`);
-            } catch (err) {
-                alert("Lỗi: " + err.message);
-            }
+                localStorage.setItem('last_file_index', lastIndex);
+                showNotification("Đã lưu file thành công!");
+            } catch (err) { alert(err.message); }
         }
 
-        // Copy for AI từ nội dung đang gõ
-        function copyKnowledgeForAI() {
-            const content = noteArea.value;
-            if (!content) {
-                alert("Khung ghi chú đang trống, hãy nhập nội dung hoặc dùng nút 'Nạp từ file'.");
-                return;
-            }
-            const prompt = `Dưới đây là kiến thức tôi đã lưu, hãy đọc và ghi nhớ để trả lời các câu hỏi tiếp theo của tôi:\n\n---\n${content}\n---`;
-            navigator.clipboard.writeText(prompt);
-            showNotification("Đã copy nội dung ghi chú!");
-        }
-
-        // Nạp kiến thức từ nhiều file cùng lúc
         async function loadFileForAI() {
             try {
-                const fileHandles = await window.showOpenFilePicker({
-                    types: [{
-                        description: 'Markdown Files',
-                        accept: { 'text/markdown': ['.md'], 'text/plain': ['.txt'] }
-                    }],
-                    multiple: true
-                });
-
-                await showLoading(1200);
-
-                let combinedContent = "Dưới đây là tổng hợp kiến thức từ nhiều file tôi đã lưu. Hãy ghi nhớ toàn bộ nội dung này:\n\n";
-                
-                for (const handle of fileHandles) {
-                    const file = await handle.getFile();
-                    const content = await file.text();
-                    combinedContent += `=== BẮT ĐẦU FILE: ${file.name} ===\n${content}\n=== KẾT THÚC FILE: ${file.name} ===\n\n`;
+                const fileHandles = await window.showOpenFilePicker({ multiple: true });
+                await showLoading();
+                let combined = "Dưới đây là kiến thức tôi đã lưu:\n\n";
+                for (const h of fileHandles) {
+                    const f = await h.getFile();
+                    const text = await f.text();
+                    combined += `[FILE: ${f.name}]\n${text}\n\n`;
                 }
-                
-                await navigator.clipboard.writeText(combinedContent);
-                showNotification(`Đã nạp ${fileHandles.length} file kiến thức. Giờ hãy dán (Ctrl+V) vào Chat nhé!`);
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.error(err);
-                    alert("Có lỗi khi đọc file: " + err.message);
-                }
-            }
+                navigator.clipboard.writeText(combined);
+                showNotification("Đã copy toàn bộ kiến thức!");
+            } catch (err) {}
         }
 
-        // Helper
+        function copyKnowledgeForAI() {
+            const content = document.getElementById('note-area').value;
+            navigator.clipboard.writeText(`Dưới đây là ghi chú hiện tại, hãy nhớ nó:\n\n${content}`);
+            showNotification("Đã copy!");
+        }
+
         function showNotification(msg) {
-            notification.innerText = msg;
-            notification.style.opacity = '1';
-            setTimeout(() => notification.style.opacity = '0', 3000);
+            const n = document.getElementById('notification');
+            n.innerText = msg;
+            setTimeout(() => n.innerText = "Tự động lưu...", 3000);
         }
 
         function openChat(url) {
-            const width = 1000, height = 800;
-            const left = (screen.width - width) / 2;
-            const top = (screen.height - height) / 2;
-            window.open(url, '_blank', `width=${width},height=${height},top=${top},left=${left}`);
+            window.open(url, '_blank', 'width=1000,height=800');
         }
 
-        // Auto save draft
-        noteArea.oninput = () => {
-            localStorage.setItem('wife_ai_knowledge', noteArea.value);
+        function backupData() {
+            const data = { notes: document.getElementById('note-area').value, todos };
+            const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'wife_hub_backup.json';
+            a.click();
+        }
+
+        function searchNote(query) {
+            const area = document.getElementById('note-area');
+            if (!query) return;
+            const idx = area.value.toLowerCase().indexOf(query.toLowerCase());
+            if (idx !== -1) {
+                area.focus();
+                area.setSelectionRange(idx, idx + query.length);
+            }
+        }
+
+        // Auto Save
+        document.getElementById('note-area').oninput = (e) => {
+            localStorage.setItem('wife_ai_knowledge', e.target.value);
         };
 
-        // Cat Clock Logic
-        (() => {
-            class Cat {
-                constructor() { this._eyelids = document.querySelectorAll('.cat__eyes__eyelid'); }
-                blink() { this._eyelids.forEach((eyelid) => eyelid.classList.add('blink')); }
-            }
-            class Needles {
-                constructor() {
-                    this.needle = {
-                        sec: document.getElementById('sec'),
-                        min: document.getElementById('min'),
-                        hour: document.getElementById('hour')
-                    };
-                }
-                rotate(deg) {
-                    this.needle.sec.style.transform = `rotateZ(${deg.sec}deg)`;
-                    this.needle.min.style.transform = `rotateZ(${deg.min}deg)`;
-                    this.needle.hour.style.transform = `rotateZ(${deg.hour}deg)`;
-                }
-            }
-            const increment = { sec: (360 / 60), min: (360 / 60), hour: (360 / 12) };
-            class Clock {
-                constructor() {
-                    this.needles = new Needles;
-                    this.cat = new Cat;
-                    this.run();
-                }
-                run() {
-                    const date = new Date();
-                    const sec = date.getSeconds();
-                    const min = date.getMinutes();
-                    const hour = date.getHours();
-                    const deg = {
-                        sec: sec * increment.sec,
-                        min: min * increment.min,
-                        hour: hour * increment.hour + min * (360 / 12 / 60)
-                    };
-                    if (sec % 5 === 0) this.cat.blink();
-                    this.needles.rotate(deg);
-                    requestAnimationFrame(this.run.bind(this));
-                }
-            }
-            new Clock;
-        })();
+        // Clock Logic
+        function initClock() {
+            setInterval(() => {
+                const now = new Date();
+                const s = now.getSeconds(), m = now.getMinutes(), h = now.getHours();
+                document.getElementById('sec').style.transform = `rotateZ(${s * 6}deg)`;
+                document.getElementById('min').style.transform = `rotateZ(${m * 6}deg)`;
+                document.getElementById('hour').style.transform = `rotateZ(${(h % 12) * 30 + m * 0.5}deg)`;
+            }, 1000);
+        }
     </script>
+    <!-- Thêm CSS đồng hồ mèo thu nhỏ từ code cũ vào đây nếu cần -->
+    <style>
+        .clock__inner { background: #fff; border: 2px solid #F27398; border-radius: 50%; height: 100%; position: relative; z-index: 6; }
+        .clock__needle { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; background: #333; border-radius: 4px; }
+        #sec { width: 2px; height: 40%; background: #F27398; }
+        #min { width: 4px; height: 35%; }
+        #hour { width: 6px; height: 25%; }
+        .cat__face { background: #9D9D9D; width: 100%; height: 80%; border-radius: 50%; position: absolute; top: -40%; z-index: 5; }
+    </style>
 </body>
 </html>
