@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Knowledge Hub - Dành tặng Vợ yêu</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex;
+        }
+        #chat-container {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            border-right: 2px solid #e0e0e0;
+            height: 100%;
+        }
+        #controls {
+            padding: 10px;
+            background: #f8f9fa;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-gpt { background: #10a37f; color: white; }
+        .btn-gemini { background: #4285f4; color: white; }
+        .btn-save { background: #007bff; color: white; width: 100%; padding: 12px; margin-top: 10px; }
+        .btn:hover { opacity: 0.8; transform: translateY(-1px); }
+        
+        iframe {
+            flex: 1;
+            border: none;
+            width: 100%;
+        }
+        
+        #note-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            min-width: 350px;
+        }
+        h2 { margin-top: 0; color: #333; display: flex; align-items: center; gap: 10px; }
+        p { color: #666; font-size: 14px; margin-bottom: 15px; }
+        
+        textarea {
+            flex: 1;
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            line-height: 1.6;
+            resize: none;
+            box-sizing: border-box;
+            outline: none;
+            background: #fffdf5;
+        }
+        textarea:focus { border-color: #007bff; box-shadow: 0 0 5px rgba(0,123,255,0.2); }
+        
+        #status {
+            font-size: 12px;
+            color: green;
+            margin-top: 5px;
+            text-align: center;
+            height: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="chat-container">
+        <div id="controls">
+            <button class="btn btn-gpt" onclick="changeAI('https://chatgpt.com')">Mở ChatGPT</button>
+            <button class="btn btn-gemini" onclick="changeAI('https://gemini.google.com')">Mở Gemini</button>
+            <span style="font-size: 13px; color: #888; margin-left: auto;">Đăng nhập 1 lần, dùng mãi mãi</span>
+        </div>
+        <iframe id="ai-frame" src="https://chatgpt.com"></iframe>
+    </div>
+
+    <div id="note-container">
+        <h2>🧠 Kho Kiến Thức</h2>
+        <p>Vợ hãy dán những kiến thức quan trọng vào đây để lưu lại nhé!</p>
+        <textarea id="note-area" placeholder="Ví dụ: Cách làm báo cáo tài chính tháng 4..."></textarea>
+        <div id="status"></div>
+        <button class="btn btn-save" onclick="saveToMD()">💾 LƯU RA FILE .MD</button>
+        <p style="font-size: 11px; text-align: center; margin-top: 10px;">Dữ liệu tự động lưu khi Vợ gõ (Auto-save)</p>
+    </div>
+
+    <script>
+        const noteArea = document.getElementById('note-area');
+        const aiFrame = document.getElementById('ai-frame');
+        const status = document.getElementById('status');
+
+        // Tải dữ liệu đã lưu từ trình duyệt
+        window.onload = () => {
+            const savedNote = localStorage.getItem('ai_knowledge');
+            if (savedNote) {
+                noteArea.value = savedNote;
+            }
+        };
+
+        // Tự động lưu vào bộ nhớ trình duyệt khi gõ
+        noteArea.oninput = () => {
+            localStorage.setItem('ai_knowledge', noteArea.value);
+        };
+
+        function changeAI(url) {
+            aiFrame.src = url;
+        }
+
+        function saveToMD() {
+            const text = noteArea.value;
+            if (!text) {
+                alert("Vợ chưa nhập gì vào ô kiến thức kìa!");
+                return;
+            }
+
+            const blob = new Blob([text], { type: 'text/markdown' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'kien_thuc_ai.md';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            status.innerText = "Đã tải file xuống máy thành công!";
+            setTimeout(() => status.innerText = "", 3000);
+        }
+    </script>
+</body>
+</html>
