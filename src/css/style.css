@@ -69,9 +69,18 @@ main {
 
 /* Cat Clock Container Fix */
 .cat-clock-pos {
-    position: absolute; top: 20px; right: 20px; width: 120px; height: 160px; z-index: 100;
-    display: flex; justify-content: flex-end; align-items: flex-start;
-    pointer-events: none;
+    position: absolute; 
+    top: 20px; 
+    right: 20px; 
+    width: 120px; 
+    height: 160px; 
+    z-index: 1000; /* Tăng z-index để luôn nổi lên trên */
+    display: flex; 
+    justify-content: flex-end; 
+    align-items: flex-start;
+    pointer-events: auto; /* Cho phép click */
+    cursor: move; /* Biểu tượng kéo */
+    user-select: none; /* Tránh bôi đen text khi kéo */
 }
 .clock-scale-wrapper { transform: scale(0.35); transform-origin: top right; margin-top: 140px; }
 
