@@ -11,16 +11,14 @@
     <style>
         :root {
             --primary: #4F46E5;
-            --primary-hover: #4338CA;
             --bg-main: #F9FAFB;
             --bg-card: #FFFFFF;
             --text-main: #111827;
             --text-sub: #6B7280;
             --border: #E5E7EB;
             --sidebar-bg: #FFFFFF;
-            --accent-green: #10B981;
-            --accent-orange: #F59E0B;
-            --accent-purple: #8B5CF6;
+            --cat-main: #9D9D9D;
+            --cat-pattern: #6D6D6D;
         }
 
         body.dark-mode {
@@ -43,177 +41,131 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Sidebar */
         aside {
-            width: 280px;
+            width: 260px;
             background: var(--sidebar-bg);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             padding: 20px;
             z-index: 10;
-            overflow-y: auto;
         }
 
-        .brand {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 24px;
-        }
-
+        .brand { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 24px; }
         .nav-group { margin-bottom: 20px; }
         .nav-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--text-sub); margin-bottom: 8px; display: block; }
         
         .btn-nav {
-            width: 100%;
-            padding: 8px 10px;
-            border-radius: 8px;
-            border: 1px solid transparent;
-            background: transparent;
-            color: var(--text-main);
-            font-size: 0.85rem;
-            font-weight: 500;
-            text-align: left;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 2px;
-            transition: all 0.2s;
+            width: 100%; padding: 8px 10px; border-radius: 8px; border: none; background: transparent;
+            color: var(--text-main); font-size: 0.85rem; font-weight: 500; text-align: left; cursor: pointer;
+            display: flex; align-items: center; gap: 10px; margin-bottom: 2px; transition: all 0.2s;
         }
         .btn-nav:hover { background: rgba(0,0,0,0.05); }
         body.dark-mode .btn-nav:hover { background: rgba(255,255,255,0.05); }
         .btn-nav svg { width: 16px; height: 16px; stroke-width: 2; }
 
-        /* Main Content */
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 24px 32px;
-            gap: 20px;
-            overflow: hidden;
-            position: relative;
-        }
+        main { flex: 1; display: flex; flex-direction: column; padding: 24px; position: relative; }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-right: 120px; /* Nhường chỗ cho đồng hồ */
-        }
+        /* Space for Cat Clock */
+        header { padding-right: 180px; margin-bottom: 20px; }
+        header h1 { font-size: 1.5rem; font-weight: 700; }
 
-        .todo-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; padding: 4px 0; }
-        .todo-item.done { text-decoration: line-through; color: var(--text-sub); }
-
-        /* Editor Pro */
-        .editor-header { display: flex; gap: 10px; margin-bottom: -1px; }
+        .editor-header { display: flex; gap: 10px; }
         .tab-btn {
-            padding: 8px 16px;
-            border: 1px solid var(--border);
-            border-bottom: none;
-            background: rgba(0,0,0,0.05);
-            border-radius: 8px 8px 0 0;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-sub);
+            padding: 8px 16px; border: 1px solid var(--border); border-bottom: none;
+            background: rgba(0,0,0,0.05); border-radius: 8px 8px 0 0; cursor: pointer;
+            font-size: 0.85rem; font-weight: 600; color: var(--text-sub);
         }
-        .tab-btn.active {
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--bg-card);
-            color: var(--primary);
-        }
+        .tab-btn.active { background: var(--bg-card); border-bottom: 1px solid var(--bg-card); color: var(--primary); }
 
         .editor-container {
-            flex: 1;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 0 12px 12px 12px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            flex: 1; background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 0 12px 12px 12px; display: flex; flex-direction: column; overflow: hidden;
         }
 
-        #note-area, #preview-area { flex: 1; padding: 24px; font-size: 1rem; line-height: 1.6; overflow-y: auto; color: var(--text-main); }
-        #note-area { border: none; resize: none; outline: none; background: transparent; }
+        #note-area, #preview-area { flex: 1; padding: 20px; font-size: 1rem; line-height: 1.6; overflow-y: auto; outline: none; }
         #preview-area { display: none; }
 
-        .editor-footer {
-            padding: 12px 24px;
-            background: rgba(0,0,0,0.02);
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .editor-footer { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .btn-primary { background: var(--primary); color: white; padding: 8px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
+
+        /* ORIGINAL CAT CLOCK CODE (CONTAINER) */
+        .cat-clock-pos {
+            position: absolute; top: 20px; right: 20px; width: 150px; height: 150px; z-index: 100;
+            transform: scale(0.3); transform-origin: top right;
         }
 
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 8px;
-            border: none;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
+        /* --- START OF ORIGINAL CSS FROM cat-clock-main --- */
+        .clock { position: relative; height: 6em; width: 6em; font-size: 40px; }
+        .clock__inner { background: #fff; border: 0.2em solid #F27398; border-radius: 50%; height: 100%; position: absolute; top: 0; left: 0%; width: 100%; z-index: 6; }
+        .clock__nums { background: #F27398; border-radius: 100%; display: block; height: 0.5em; list-style: none; margin: 0; padding: 0; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0.5em; z-index: 10; }
+        .clock__num { height: 2.8em; position: absolute; left: 50%; bottom: 0.25em; margin-left: -0.25em; text-align: center; transform-origin: center bottom; width: 0.5em; z-index: 3; }
+        .clock__num--1 { transform: rotate(30deg); } .clock__num--2 { transform: rotate(60deg); } .clock__num--3 { transform: rotate(90deg); } .clock__num--4 { transform: rotate(120deg); } .clock__num--5 { transform: rotate(150deg); } .clock__num--6 { transform: rotate(180deg); } .clock__num--7 { transform: rotate(210deg); } .clock__num--8 { transform: rotate(240deg); } .clock__num--9 { transform: rotate(270deg); } .clock__num--10 { transform: rotate(300deg); } .clock__num--11 { transform: rotate(330deg); } .clock__num--12 { transform: rotate(360deg); }
+        .clock__num__text { color: #95a5a6; display: inline-block; font-size: 0.8em; }
+        .clock__num__text--1 { transform: rotate(-30deg); } .clock__num__text--2 { transform: rotate(-60deg); } .clock__num__text--3 { transform: rotate(-90deg); } .clock__num__text--4 { transform: rotate(-120deg); } .clock__num__text--5 { transform: rotate(-150deg); } .clock__num__text--6 { transform: rotate(-180deg); } .clock__num__text--7 { transform: rotate(-210deg); } .clock__num__text--8 { transform: rotate(-240deg); } .clock__num__text--9 { transform: rotate(-270deg); } .clock__num__text--10 { transform: rotate(-300deg); } .clock__num__text--11 { transform: rotate(-330deg); } .clock__num__text--12 { transform: rotate(-360deg); }
+        .clock__needles { height: 0.5em; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0.5em; z-index: 9; }
+        .clock__needle { border-radius: 0.08em 0.08em 0 0; height: 2em; margin-left: -0.08em; position: absolute; bottom: 0.25em; left: 50%; transform-origin: center bottom; width: 0.16em; }
+        .clock__needle--hour { background: #95a5a6; height: 1.4em; } .clock__needle--min { background: #F27398; } .clock__needle--sec { background: #aaa; margin-left: -0.04em; width: 0.08em; }
+        .clock__needle--sec:before { background: #aaa; border-radius: 0 0 0.08em 0.08em; content: ""; height: 0.8em; margin-left: -0.04em; position: absolute; top: 100%; left: 50%; width: 0.08em; }
 
-        /* Fixed Cat Clock in Top Right */
-        .fixed-clock-container {
-            position: absolute;
-            top: 20px;
-            right: 32px;
-            width: 100px;
-            height: 100px;
-            z-index: 100;
-        }
+        .cat { height: 6em; position: absolute; top: 0; left: 0; width: 100%; }
+        .cat__face { background: var(--cat-main); border-radius: 50%; height: 4em; overflow: hidden; position: absolute; top: -3.5em; left: 0%; width: 6em; z-index: 5; }
+        .cat__face__pattern { background: var(--cat-pattern); position: absolute; }
+        .cat__face__pattern:before, .cat__face__pattern:after { background: var(--cat-pattern); content: ""; position: absolute; }
+        .cat__face__pattern--top { border-radius: 0 0 50% 50%; height: 1em; margin-left: -0.1em; top: 0; left: 50%; width: 0.2em; }
+        .cat__face__pattern--top:before { border-radius: 0 0 50% 50%; height: 0.6em; margin-left: -0.6em; top: 0; left: 50%; width: 0.2em; }
+        .cat__face__pattern--top:after { border-radius: 0 0 50% 50%; height: 0.6em; margin-right: -0.6em; top: 0; right: 50%; width: 0.2em; }
+        .cat__face__pattern--left { border-radius: 0 50% 50% 0; height: 0.2em; margin-top: -0.1em; top: 50%; left: 0; width: 1em; }
+        .cat__face__pattern--left:before { border-radius: 0 50% 50% 0; height: 0.2em; margin-top: -0.6em; top: 50%; left: 0; width: 0.6em; }
+        .cat__face__pattern--left:after { border-radius: 0 50% 50% 0; height: 0.2em; margin-bottom: -0.6em; bottom: 50%; left: 0; width: 0.6em; }
+        .cat__face__pattern--right { border-radius: 50% 0 0 50%; height: 0.2em; margin-top: -0.1em; top: 50%; right: 0; width: 1em; }
+        .cat__face__pattern--right:before { border-radius: 50% 0 0 50%; height: 0.2em; margin-top: -0.6em; top: 50%; right: 0; width: 0.6em; }
+        .cat__face__pattern--right:after { border-radius: 50% 0 0 50%; height: 0.2em; margin-bottom: -0.6em; bottom: 50%; right: 0; width: 0.6em; }
 
-        /* Tối ưu CSS Đồng hồ Mèo */
-        .c-clock { position: relative; width: 100%; height: 100%; scale: 0.8; }
-        .c-clock__inner { 
-            position: absolute; top: 10%; left: 10%; width: 80%; height: 80%;
-            background: white; border: 2px solid #F27398; border-radius: 50%; z-index: 6; 
-        }
-        .c-clock__needle { 
-            position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; 
-            background: #333; border-radius: 2px; z-index: 10; 
-        }
-        #sec { width: 1px; height: 40%; background: #F27398; }
-        #min { width: 2px; height: 35%; }
-        #hour { width: 3px; height: 25%; }
-        
-        .c-cat__face { 
-            position: absolute; top: -10%; left: 0; width: 100%; height: 80%;
-            background: #9D9D9D; border-radius: 50%; z-index: 5;
-        }
-        .c-cat__ears { position: absolute; top: -25%; left: 0; width: 100%; height: 30%; z-index: 4; display: flex; justify-content: space-around; }
-        .c-cat__ear { width: 30%; height: 100%; background: #9D9D9D; border-radius: 30% 30% 0 0; }
+        .cat__ears { height: 1em; position: absolute; top: -3.5em; left: 0; width: 100%; z-index: -1; }
+        .cat__ears__ear { background: var(--cat-main); border-radius: 25%; height: 1.8em; position: absolute; top: -0.3em; width: 1.8em; }
+        .cat__ears__ear:before { content: ""; background: #f4e8da; border-radius: 25%; height: 1.4em; margin-top: -0.7em; margin-left: -0.7em; position: absolute; top: 50%; left: 50%; width: 1.4em; }
+        .cat__ears__ear--left { left: 0.5em; transform: rotate(20deg); } .cat__ears__ear--right { right: 0.5em; transform: rotate(-20deg); }
 
-        .c-cat__eyes { position: absolute; top: 25%; left: 0; width: 100%; display: flex; justify-content: space-around; padding: 0 15%; box-sizing: border-box; }
-        .c-cat__eye { width: 15px; height: 15px; background: #333; border-radius: 50%; position: relative; overflow: hidden; }
-        .c-cat__eyelid { position: absolute; top: 0; left: 0; width: 100%; height: 0; background: #9D9D9D; transition: height 0.1s; }
-        .c-cat__eyelid.blink { animation: blink-anim 0.2s; }
-        @keyframes blink-anim { 0%, 100% { height: 0; } 50% { height: 100%; } }
+        .cat__eyes { height: 1em; position: absolute; top: 1em; width: 100%; }
+        .cat__eyes__eye { background: #333; border: 0.06em solid #333; border-top: 0.12em solid #333; height: 1em; overflow: hidden; position: absolute; bottom: 0; width: 1.3em; }
+        .cat__eyes__eye:before { background: #69CC68; content: ""; height: 1em; position: absolute; top: 0; width: 1.2em; }
+        .cat__eyes__eye:after { background: #333; border-radius: 50%; content: ""; height: 1em; margin-top: -0.25em; position: absolute; top: 0em; width: 1em; }
+        .cat__eyes__eye span { background: #fff; border-radius: 50%; height: 0.2em; margin-left: -0.1em; margin-top: -0.2em; position: absolute; top: 50%; left: 50%; width: 0.2em; z-index: 1; }
+        .cat__eyes__eye--left { border-radius: 0 70% 0 70%; left: 1.1em; } .cat__eyes__eye--left:before { border-radius: 0 50% 50% 50%; left: 0; } .cat__eyes__eye--left:after { margin-left: -0.45em; left: 50%; }
+        .cat__eyes__eye--right { border-radius: 70% 0 70% 0; right: 1.1em; } .cat__eyes__eye--right:before { border-radius: 50% 0 50% 50%; right: 0; } .cat__eyes__eye--right:after { margin-right: -0.45em; right: 50%; }
+        .cat__eyes__eyelid { background: var(--cat-main); height: 0; position: absolute; left: 0; top: 0; width: 100%; z-index: 10; }
+        .blink { animation: blink infinite 1s; } @keyframes blink { 0% { height: 0; } 50% { height: 100%; } 100% { height: 0; } }
 
-        /* Focus Mode */
+        .cat__nose { border-top: 0.5em solid #F26752; border-left: 0.5em solid transparent; border-right: 0.5em solid transparent; height: 0.5em; margin-left: -0.5em; position: absolute; top: 2.5em; left: 50%; width: 1em; }
+        .cat__mouth { margin-left: -1em; overflow: hidden; position: absolute; top: 3em; left: 50%; height: 1em; width: 2em; }
+        .cat__mouth:before, .cat__mouth:after { border: 0.01em solid #333; border-radius: 50%; content: ""; display: block; height: 0.8em; position: absolute; top: -0.4em; width: 50%; }
+        .cat__mouth:before { margin-left: -0.04em; left: 0; } .cat__mouth:after { margin-right: -0.04em; right: 0; }
+
+        .cat__whiskers { height: 1em; position: absolute; top: -1.5em; left: 0; width: 100%; z-index: 8; }
+        .cat__whiskers__whisker { height: 1em; position: absolute; top: 0; width: 2.5em; }
+        .cat__whiskers__whisker:before, .cat__whiskers__whisker:after, .cat__whiskers__whisker span { border-top: 0.03em solid #eee; height: 0.03em; position: absolute; left: 0; width: 2.5em; }
+        .cat__whiskers__whisker--left { margin-left: -0.5em; left: 0; } .cat__whiskers__whisker--left:before { content: ""; top: 0; transform: rotate(10deg); } .cat__whiskers__whisker--left:after { content: ""; margin-top: -0.005em; top: 0.5em; } .cat__whiskers__whisker--left span { bottom: 0; transform: rotate(-10deg); }
+        .cat__whiskers__whisker--right { margin-right: -0.5em; right: 0; } .cat__whiskers__whisker--right:before { content: ""; top: 0; transform: rotate(-10deg); } .cat__whiskers__whisker--right:after { content: ""; margin-top: -0.005em; top: 0.5em; } .cat__whiskers__whisker--right span { bottom: 0; transform: rotate(10deg); }
+
+        .cat__hands { height: 1em; position: absolute; top: -0.5em; left: 0; width: 100%; z-index: 9; }
+        .cat__hands__hand { background: var(--cat-pattern); border-radius: 50%; height: 1em; overflow: hidden; position: absolute; top: 0.5em; width: 2em; }
+        .cat__hands__hand--left { left: 0; transform: rotate(-20deg); } .cat__hands__hand--right { right: 0; transform: rotate(20deg); }
+
+        .cat__legs { height: 1em; position: absolute; bottom: 0em; left: 0; width: 100%; z-index: 8; }
+        .cat__legs__leg { background: var(--cat-pattern); border-radius: 50%; height: 1em; overflow: hidden; position: absolute; top: 0; width: 2em; }
+        .cat__legs__leg--left { left: 0; transform: rotate(20deg); } .cat__legs__leg--right { right: 0; transform: rotate(-20deg); }
+
+        .cat__tail { height: 2em; position: absolute; bottom: 0.04em; left: 0; width: 100%; z-index: 0; }
+        .cat__tail__inner { background: var(--cat-main); border-radius: 0 0 3em 3em; height: 2em; overflow: hidden; position: absolute; top: 2em; left: 3em; width: 3em; }
+        .cat__tail__inner:before { background: var(--bg-main); border-radius: 0 0 2em 2em; content: ""; height: 3em; margin-left: -1em; overflow: hidden; position: absolute; top: -1.5em; left: 50%; width: 2em; z-index: 4; }
+        .cat__tail__pattern { background: var(--cat-pattern); height: 0.2em; position: absolute; width: 0.5em; }
+        /* --- END OF ORIGINAL CSS --- */
+
         body.focus-mode aside { display: none; }
-        body.focus-mode main { padding: 40px 15%; }
-        
-        #loading-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 9999;
-        }
-        body.dark-mode #loading-overlay { background: rgba(0,0,0,0.8); }
     </style>
 </head>
 <body>
-
-    <div id="loading-overlay">Con mèo đang chạy...</div>
 
     <aside>
         <div class="brand">AI HUB PRO</div>
@@ -234,53 +186,97 @@
             <span class="nav-label">Kiến thức</span>
             <button class="btn-nav" onclick="selectFolder()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
-                Thư mục lưu
+                Chọn thư mục
             </button>
             <button class="btn-nav" onclick="loadFileForAI()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                Nạp file cho AI
+                Nạp file vào AI
             </button>
         </div>
 
         <div class="nav-group">
-            <span class="nav-label">Việc cần làm</span>
-            <div id="todo-list"></div>
+            <span class="nav-label">Công việc</span>
+            <div id="todo-list" style="margin-bottom: 8px;"></div>
             <button class="btn-nav" style="color: var(--primary);" onclick="addTodo()">+ Thêm việc</button>
         </div>
 
         <div class="nav-group" style="margin-top: auto;">
             <button class="btn-nav" onclick="toggleDarkMode()">🌓 Tối/Sáng</button>
             <button class="btn-nav" onclick="toggleFocusMode()">🧘 Tập trung</button>
-            <button class="btn-nav" onclick="backupData()">💾 Sao lưu</button>
         </div>
     </aside>
 
     <main>
-        <div class="fixed-clock-container">
-            <div class="c-clock">
-                <div class="c-cat__ears">
-                    <div class="c-cat__ear"></div>
-                    <div class="c-cat__ear"></div>
+        <!-- CAT CLOCK ORIGINAL HTML -->
+        <div class="cat-clock-pos">
+            <div class="clock">
+                <div class="clock__inner">
+                  <ul class="clock__nums">
+                    <li class="clock__num clock__num--1"><span class="clock__num__text clock__num__text--1">1</span></li>
+                    <li class="clock__num clock__num--2"><span class="clock__num__text clock__num__text--2">2</span></li>
+                    <li class="clock__num clock__num--3"><span class="clock__num__text clock__num__text--3">3</span></li>
+                    <li class="clock__num clock__num--4"><span class="clock__num__text clock__num__text--4">4</span></li>
+                    <li class="clock__num clock__num--5"><span class="clock__num__text clock__num__text--5">5</span></li>
+                    <li class="clock__num clock__num--6"><span class="clock__num__text clock__num__text--6">6</span></li>
+                    <li class="clock__num clock__num--7"><span class="clock__num__text clock__num__text--7">7</span></li>
+                    <li class="clock__num clock__num--8"><span class="clock__num__text clock__num__text--8">8</span></li>
+                    <li class="clock__num clock__num--9"><span class="clock__num__text clock__num__text--9">9</span></li>
+                    <li class="clock__num clock__num--10"><span class="clock__num__text clock__num__text--10">10</span></li>
+                    <li class="clock__num clock__num--11"><span class="clock__num__text clock__num__text--11">11</span></li>
+                    <li class="clock__num clock__num--12"><span class="clock__num__text clock__num__text--12">12</span></li>
+                  </ul>
+                  <div class="clock__needles">
+                    <div class="clock__needle clock__needle--hour" id="hour"></div>
+                    <div class="clock__needle clock__needle--min" id="min"></div>
+                    <div class="clock__needle clock__needle--sec" id="sec"></div>
+                  </div>
                 </div>
-                <div class="c-cat__face">
-                    <div class="c-cat__eyes">
-                        <div class="c-cat__eye"><div class="c-cat__eyelid" id="eyelid-l"></div></div>
-                        <div class="c-cat__eye"><div class="c-cat__eyelid" id="eyelid-r"></div></div>
+                <div class="cat">
+                  <div class="cat__ears">
+                    <div class="cat__ears__ear cat__ears__ear--left"></div>
+                    <div class="cat__ears__ear cat__ears__ear--right"></div>
+                  </div>
+                  <div class="cat__whiskers">
+                    <div class="cat__whiskers__whisker cat__whiskers__whisker--left"><span></span></div>
+                    <div class="cat__whiskers__whisker cat__whiskers__whisker--right"><span></span></div>
+                  </div>
+                  <div class="cat__face">
+                    <div class="cat__face__pattern cat__face__pattern--top"></div>
+                    <div class="cat__face__pattern cat__face__pattern--left"></div>
+                    <div class="cat__face__pattern cat__face__pattern--right"></div>
+                    <div class="cat__eyes">
+                      <div class="cat__eyes__eye cat__eyes__eye--left">
+                        <div class="cat__eyes__eyelid cat__eyes__eyelid--left"></div>
+                        <span></span>
+                      </div>
+                      <div class="cat__eyes__eye cat__eyes__eye--right">
+                        <div class="cat__eyes__eyelid cat__eyes__eyelid--right"></div>
+                        <span></span>
+                      </div>
                     </div>
+                    <div class="cat__nose"></div>
+                    <div class="cat__mouth"></div>
+                  </div>
+                  <div class="cat__hands">
+                    <div class="cat__hands__hand cat__hands__hand--left"></div>
+                    <div class="cat__hands__hand cat__hands__hand--right"></div>
+                  </div>
+                  <div class="cat__legs">
+                    <div class="cat__legs__leg cat__legs__leg--left"></div>
+                    <div class="cat__legs__leg cat__legs__leg--right"></div>
+                  </div>
+                  <div class="cat__tail">
+                    <div class="cat__tail__inner">
+                      <span class="cat__tail__pattern cat__tail__pattern--1"></span><span class="cat__tail__pattern cat__tail__pattern--2"></span><span class="cat__tail__pattern cat__tail__pattern--3"></span><span class="cat__tail__pattern cat__tail__pattern--4"></span><span class="cat__tail__pattern cat__tail__pattern--5"></span><span class="cat__tail__pattern cat__tail__pattern--6"></span><span class="cat__tail__pattern cat__tail__pattern--7"></span><span class="cat__tail__pattern cat__tail__pattern--8"></span><span class="cat__tail__pattern cat__tail__pattern--9"></span>
+                    </div>
+                  </div>
                 </div>
-                <div class="c-clock__inner">
-                    <div class="c-clock__needle" id="hour"></div>
-                    <div class="c-clock__needle" id="min"></div>
-                    <div class="c-clock__needle" id="sec"></div>
-                </div>
-            </div>
+              </div>
         </div>
 
         <header>
-            <div>
-                <h1>Chào Vợ yêu!</h1>
-                <p id="daily-quote" style="color: var(--text-sub); font-style: italic;"></p>
-            </div>
+            <h1>Chào Vợ yêu!</h1>
+            <p style="color: var(--text-sub); font-style: italic;">Hôm nay của vợ thế nào? Cùng làm việc nhé!</p>
         </header>
 
         <div class="editor-header">
@@ -289,10 +285,10 @@
         </div>
 
         <div class="editor-container">
-            <textarea id="note-area" placeholder="Ghi chú kiến thức tại đây..."></textarea>
+            <textarea id="note-area" placeholder="Ghi chú kiến thức..."></textarea>
             <div id="preview-area"></div>
             <div class="editor-footer">
-                <span id="save-status" style="font-size: 0.8rem; color: var(--accent-green);">Đã lưu nháp</span>
+                <span style="font-size: 0.8rem; color: var(--accent-green);">Tự động lưu...</span>
                 <button class="btn-primary" onclick="saveAsNewFile()">Lưu file mới</button>
             </div>
         </div>
@@ -305,7 +301,6 @@
         window.onload = () => {
             if (localStorage.getItem('dark_mode') === 'true') document.body.classList.add('dark-mode');
             document.getElementById('note-area').value = localStorage.getItem('wife_ai_knowledge') || '';
-            document.getElementById('daily-quote').innerText = "Chúc vợ một ngày làm việc thật hiệu quả và vui vẻ!";
             renderTodos();
             startClock();
         };
@@ -325,7 +320,7 @@
 
         function renderTodos() {
             document.getElementById('todo-list').innerHTML = todos.map((t, i) => `
-                <div class="todo-item ${t.done ? 'done' : ''}">
+                <div class="todo-item ${t.done ? 'done' : ''}" style="display:flex; align-items:center; gap:8px;">
                     <input type="checkbox" ${t.done ? 'checked' : ''} onchange="todos[${i}].done=!todos[${i}].done;renderTodos()">
                     <span>${t.text}</span>
                 </div>
@@ -354,7 +349,7 @@
             const h = await directoryHandle.getFileHandle(`kienthuc_${idx}.md`, {create:true});
             const w = await h.createWritable(); await w.write(content); await w.close();
             localStorage.setItem('last_idx', idx);
-            alert("Đã lưu kienthuc_" + idx + ".md");
+            alert("Đã lưu!");
         }
 
         async function loadFileForAI() {
@@ -367,32 +362,30 @@
             } catch(e){}
         }
 
-        function backupData() {
-            const blob = new Blob([JSON.stringify({notes:document.getElementById('note-area').value, todos})], {type:'application/json'});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='backup.json'; a.click();
-        }
-
         document.getElementById('note-area').oninput = (e) => localStorage.setItem('wife_ai_knowledge', e.target.value);
 
-        function startClock() {
-            setInterval(() => {
-                const now = new Date();
-                const s = now.getSeconds(), m = now.getMinutes(), h = now.getHours();
-                document.getElementById('sec').style.transform = `rotate(${s*6}deg)`;
-                document.getElementById('min').style.transform = `rotate(${m*6}deg)`;
-                document.getElementById('hour').style.transform = `rotate(${(h%12)*30 + m*0.5}deg)`;
-                if(s % 10 === 0) {
-                    document.getElementById('eyelid-l').classList.add('blink');
-                    document.getElementById('eyelid-r').classList.add('blink');
-                    setTimeout(() => {
-                        document.getElementById('eyelid-l').classList.remove('blink');
-                        document.getElementById('eyelid-r').classList.remove('blink');
-                    }, 200);
-                }
-            }, 1000);
-        }
-
         function openChat(url) { window.open(url, '_blank', 'width=1000,height=800'); }
+
+        // ORIGINAL CLOCK LOGIC
+        function startClock() {
+            const eyelids = document.querySelectorAll('.cat__eyes__eyelid');
+            const needle = { sec: document.getElementById('sec'), min: document.getElementById('min'), hour: document.getElementById('hour') };
+            const increment = { sec: 6, min: 6, hour: 30 };
+
+            function run() {
+                const date = new Date();
+                const s = date.getSeconds(), m = date.getMinutes(), h = date.getHours();
+                needle.sec.style.transform = `rotateZ(${s * increment.sec}deg)`;
+                needle.min.style.transform = `rotateZ(${m * increment.min}deg)`;
+                needle.hour.style.transform = `rotateZ(${h * increment.hour + m * 0.5}deg)`;
+                
+                if(s % 10 === 0) eyelids.forEach(e => e.classList.add('blink'));
+                else eyelids.forEach(e => e.classList.remove('blink'));
+                
+                requestAnimationFrame(run);
+            }
+            run();
+        }
     </script>
 </body>
 </html>
