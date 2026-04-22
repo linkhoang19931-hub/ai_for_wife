@@ -21,7 +21,6 @@ function switchTab(mode) {
         if(btn) btn.classList.toggle('active', t === mode);
     });
 
-    // Tự động ẩn/hiện ô soạn thảo và footer dựa trên tab
     const noteArea = document.getElementById('note-area');
     const footer = document.querySelector('.editor-footer');
     
@@ -46,56 +45,53 @@ function switchTab(mode) {
     }
 }
 
-// Legal Documents Logic - Fetching from moj.gov.vn
+// Legal Documents Logic - Fetching from Thuvienphapluat.vn RSS
 async function fetchLegalDocs() {
     const listEl = document.getElementById('law-list');
     if (!listEl) return;
-    listEl.innerHTML = "<div style='text-align:center; padding:20px; grid-column: span 3;'>🔍 Đang quét radar văn bản pháp luật...</div>";
+    listEl.innerHTML = "<div style='text-align:center; padding:20px; grid-column: span 3;'>🔍 Đang kết nối Thư Viện Pháp Luật...</div>";
     
-    const apiURL = 'https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/all';
-    
-    const fetchType = async (payload) => {
+    const feeds = {
+        vanban: 'https://thuvienphapluat.vn/rss/vbm.rss',
+        duthao: 'https://thuvienphapluat.vn/rss/dt.rss',
+        congvan: 'https://thuvienphapluat.vn/rss/cv.rss'
+    };
+
+    const fetchRSS = async (url) => {
         try {
-            // Sử dụng corsproxy.io để vượt rào cản CORS
-            const proxyURL = 'https://corsproxy.io/?' + encodeURIComponent(apiURL);
-            const response = await fetch(proxyURL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            return await response.json();
-        } catch (e) { 
-            console.error("Fetch error for payload:", payload, e);
-            return null; 
+            const proxyURL = 'https://corsproxy.io/?' + encodeURIComponent(url);
+            const response = await fetch(proxyURL);
+            const text = await response.text();
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(text, "text/xml");
+            const items = Array.from(xml.querySelectorAll("item")).slice(0, 10);
+            
+            return items.map(item => ({
+                title: item.querySelector("title")?.textContent || "Không có tiêu đề",
+                link: item.querySelector("link")?.textContent || "#",
+                pubDate: item.querySelector("pubDate")?.textContent || "",
+                description: item.querySelector("description")?.textContent || ""
+            }));
+        } catch (e) {
+            console.error("Lỗi fetch RSS:", url, e);
+            return [];
         }
     };
 
     try {
-        const [latest, comingSoon, expiringSoon] = await Promise.all([
-            fetchType({ pageSize: 10, pageIndex: 0, sortDirection: "desc", sortBy: "issueDate" }),
-            fetchType({ sortDirection: "desc", sortBy: "issueDate", pageSize: 10, pageNumber: 1, comingSoon: true }),
-            fetchType({ sortDirection: "desc", sortBy: "issueDate", pageSize: 10, pageNumber: 1, expiringSoon: true })
+        const [vb, dt, cv] = await Promise.all([
+            fetchRSS(feeds.vanban),
+            fetchRSS(feeds.duthao),
+            fetchRSS(feeds.congvan)
         ]);
 
-        const dataGrid = {
-            new: latest?.data?.items || [],
-            coming: comingSoon?.data?.items || [],
-            expiring: expiringSoon?.data?.items || []
-        };
-
-        if (dataGrid.new.length || dataGrid.coming.length || dataGrid.expiring.length) {
-            renderLawGrid(dataGrid);
-        } else {
-            throw new Error("No data received");
-        }
+        renderLawGrid({
+            vanban: vb,
+            duthao: dt,
+            congvan: cv
+        });
     } catch (e) {
-        console.warn("Using smart fallback due to connection issues.");
-        const mockData = {
-            new: [{ title: "Nghị định 42/2024/NĐ-CP Hoạt động lấn biển", docNum: "42/2024/NĐ-CP", issueDate: "2024-04-16", effStatus: {name: "Đang hiệu lực"} }],
-            coming: [{ title: "Nghị định 112/2026/NĐ-CP Tín chỉ carbon", docNum: "112/2026/NĐ-CP", issueDate: "2026-04-01", effFrom: "2026-05-19", effStatus: {name: "Chưa hiệu lực"} }],
-            expiring: [{ title: "Thông báo: Hiện chưa có văn bản sắp hết hiệu lực", docNum: "N/A", issueDate: new Date().toISOString(), effStatus: {name: "Bình thường"} }]
-        };
-        renderLawGrid(mockData);
+        listEl.innerHTML = "<div style='text-align:center; padding:20px; grid-column: span 3; color: #EF4444;'>⚠️ Không thể kết nối với nguồn dữ liệu. Hãy thử tải lại trang.</div>";
     }
 }
 
@@ -103,31 +99,36 @@ function renderLawGrid(data) {
     const listEl = document.getElementById('law-list');
     if (!listEl) return;
 
-    const createCards = (items, color) => items.map(item => `
-        <div class="law-card" style="border-left: 4px solid ${color};">
-            <span class="law-title">${item.title}</span>
-            <div class="law-meta">
-                <span>📄 ${item.docNum}</span>
-                <span>📅 ${new Date(item.issueDate).toLocaleDateString('vi-VN')}</span>
+    const createCards = (items, color) => items.map(item => {
+        // Trích xuất số hiệu nếu có (thường nằm ở đầu tiêu đề)
+        const docNumMatch = item.title.match(/[0-9\/]+[A-ZĐ-]+[0-9]*/);
+        const docNum = docNumMatch ? docNumMatch[0] : "Văn bản";
+
+        return `
+            <div class="law-card" style="border-left: 4px solid ${color};" onclick="window.open('${item.link}', '_blank')">
+                <span class="law-title" style="cursor:pointer; font-size:0.85rem;">${item.title}</span>
+                <div class="law-meta">
+                    <span>📄 ${docNum}</span>
+                    <span>📅 ${new Date(item.pubDate).toLocaleDateString('vi-VN')}</span>
+                </div>
+                <div style="font-size:0.7rem; color: #6B7280; margin-top:5px;">🌐 Nhấn để xem chi tiết trên TVPL</div>
             </div>
-            <div style="font-size:0.75rem; color:var(--primary); margin-top:5px; font-weight:600;">⚡ ${item.effStatus?.name || ''}</div>
-            ${item.effFrom ? `<div style="font-size:0.7rem; color:#6B7280;">🚀 Hiệu lực: ${new Date(item.effFrom).toLocaleDateString('vi-VN')}</div>` : ''}
-        </div>
-    `).join('');
+        `;
+    }).join('');
 
     listEl.innerHTML = `
         <div class="law-grid">
             <div class="law-column">
-                <h3>🆕 Mới ban hành</h3>
-                ${data.new.length ? createCards(data.new, '#4F46E5') : '<p style="font-size:0.8rem; color:gray;">Không có dữ liệu</p>'}
+                <h3>⚖️ Văn bản mới</h3>
+                ${data.vanban.length ? createCards(data.vanban, '#4F46E5') : '<p style="font-size:0.8rem; color:gray; text-align:center;">Đang tải hoặc không có dữ liệu</p>'}
             </div>
             <div class="law-column">
-                <h3>⏳ Sắp có hiệu lực</h3>
-                ${data.coming.length ? createCards(data.coming, '#F59E0B') : '<p style="font-size:0.8rem; color:gray;">Không có dữ liệu</p>'}
+                <h3>📝 Dự thảo</h3>
+                ${data.duthao.length ? createCards(data.duthao, '#F59E0B') : '<p style="font-size:0.8rem; color:gray; text-align:center;">Đang tải hoặc không có dữ liệu</p>'}
             </div>
             <div class="law-column">
-                <h3>⚠️ Sắp hết hiệu lực</h3>
-                ${data.expiring.length ? createCards(data.expiring, '#EF4444') : '<p style="font-size:0.8rem; color:gray;">Không có dữ liệu</p>'}
+                <h3>✉️ Công văn</h3>
+                ${data.congvan.length ? createCards(data.congvan, '#10B981') : '<p style="font-size:0.8rem; color:gray; text-align:center;">Đang tải hoặc không có dữ liệu</p>'}
             </div>
         </div>
     `;
