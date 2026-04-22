@@ -92,11 +92,6 @@
             background: #F3F4F6;
         }
 
-        .btn-nav.active {
-            background: #EEF2FF;
-            color: var(--primary);
-        }
-
         .btn-nav svg {
             width: 18px;
             height: 18px;
@@ -410,6 +405,229 @@
             50% { transform: rotate(-195deg); }
             70% { transform: rotate(-165deg); }
         }
+
+        /* Cat Clock Styles */
+        .cat-clock-wrapper {
+            margin-top: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 50px;
+            padding-bottom: 20px;
+            transform: scale(0.35);
+            transform-origin: bottom center;
+            height: 180px;
+        }
+
+        .cat-clock-container {
+            position: relative;
+            height: 6em;
+            width: 6em;
+            font-size: 40px;
+        }
+
+        .clock__inner {
+            background: #fff;
+            border: 0.2em solid #F27398;
+            border-radius: 50%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0%;
+            width: 100%;
+            z-index: 6;
+        }
+        .clock__nums {
+            background: #F27398;
+            border-radius: 100%;
+            display: block;
+            height: 0.5em;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0.5em;
+            z-index: 10;
+        }
+        .clock__num {
+            height: 2.8em;
+            position: absolute;
+            left: 50%;
+            bottom: 0.25em;
+            margin-left: -0.25em;
+            text-align: center;
+            transform-origin: center bottom;
+            width: 0.5em;
+            z-index: 3;
+        }
+        .clock__num--1 { transform: rotate(30deg); }
+        .clock__num--2 { transform: rotate(60deg); }
+        .clock__num--3 { transform: rotate(90deg); }
+        .clock__num--4 { transform: rotate(120deg); }
+        .clock__num--5 { transform: rotate(150deg); }
+        .clock__num--6 { transform: rotate(180deg); }
+        .clock__num--7 { transform: rotate(210deg); }
+        .clock__num--8 { transform: rotate(240deg); }
+        .clock__num--9 { transform: rotate(270deg); }
+        .clock__num--10 { transform: rotate(300deg); }
+        .clock__num--11 { transform: rotate(330deg); }
+        .clock__num--12 { transform: rotate(360deg); }
+        
+        .clock__num__text {
+            color: #95a5a6;
+            display: inline-block;
+            font-size: 0.8em;
+        }
+        .clock__num__text--1 { transform: rotate(-30deg); }
+        .clock__num__text--2 { transform: rotate(-60deg); }
+        .clock__num__text--3 { transform: rotate(-90deg); }
+        .clock__num__text--4 { transform: rotate(-120deg); }
+        .clock__num__text--5 { transform: rotate(-150deg); }
+        .clock__num__text--6 { transform: rotate(-180deg); }
+        .clock__num__text--7 { transform: rotate(-210deg); }
+        .clock__num__text--8 { transform: rotate(-240deg); }
+        .clock__num__text--9 { transform: rotate(-270deg); }
+        .clock__num__text--10 { transform: rotate(-300deg); }
+        .clock__num__text--11 { transform: rotate(-330deg); }
+        .clock__num__text--12 { transform: rotate(-360deg); }
+        
+        .clock__needles {
+            height: 0.5em;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0.5em;
+            z-index: 9;
+        }
+        .clock__needle {
+            border-radius: 0.08em 0.08em 0 0;
+            height: 2em;
+            margin-left: -0.08em;
+            position: absolute;
+            bottom: 0.25em;
+            left: 50%;
+            transform-origin: center bottom;
+            width: 0.16em;
+        }
+        .clock__needle--hour { background: #95a5a6; height: 1.4em; }
+        .clock__needle--min { background: #F27398; }
+        .clock__needle--sec { background: #aaa; margin-left: -0.04em; width: 0.08em; }
+        .clock__needle--sec:before {
+            background: #aaa;
+            border-radius: 0 0 0.08em 0.08em;
+            content: "";
+            height: 0.8em;
+            margin-left: -0.04em;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            width: 0.08em;
+        }
+
+        .cat {
+            height: 6em;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+        .cat__face {
+            background: #bda46b;
+            border-radius: 50%;
+            height: 4em;
+            overflow: hidden;
+            position: absolute;
+            top: -3.5em;
+            left: 0%;
+            width: 6em;
+            z-index: 5;
+        }
+        .cat__face__pattern { background: #695b3b; position: absolute; }
+        .cat__face__pattern:before, .cat__face__pattern:after { background: #695b3b; content: ""; position: absolute; }
+        .cat__face__pattern--top { border-radius: 0 0 50% 50%; height: 1em; margin-left: -0.1em; top: 0; left: 50%; width: 0.2em; }
+        .cat__face__pattern--top:before { border-radius: 0 0 50% 50%; height: 0.6em; margin-left: -0.6em; top: 0; left: 50%; width: 0.2em; }
+        .cat__face__pattern--top:after { border-radius: 0 0 50% 50%; height: 0.6em; margin-right: -0.6em; top: 0; right: 50%; width: 0.2em; }
+        .cat__face__pattern--left { border-radius: 0 50% 50% 0; height: 0.2em; margin-top: -0.1em; top: 50%; left: 0; width: 1em; }
+        .cat__face__pattern--left:before { border-radius: 0 50% 50% 0; height: 0.2em; margin-top: -0.6em; top: 50%; left: 0; width: 0.6em; }
+        .cat__face__pattern--left:after { border-radius: 0 50% 50% 0; height: 0.2em; margin-bottom: -0.6em; bottom: 50%; left: 0; width: 0.6em; }
+        .cat__face__pattern--right { border-radius: 50% 0 0 50%; height: 0.2em; margin-top: -0.1em; top: 50%; right: 0; width: 1em; }
+        .cat__face__pattern--right:before { border-radius: 50% 0 0 50%; height: 0.2em; margin-top: -0.6em; top: 50%; right: 0; width: 0.6em; }
+        .cat__face__pattern--right:after { border-radius: 50% 0 0 50%; height: 0.2em; margin-bottom: -0.6em; bottom: 50%; right: 0; width: 0.6em; }
+        
+        .cat__ears { height: 1em; position: absolute; top: -3.5em; left: 0; width: 100%; z-index: -1; }
+        .cat__ears__ear { background: #bda46b; border-radius: 25%; height: 1.8em; position: absolute; top: -0.3em; width: 1.8em; }
+        .cat__ears__ear:before { content: ""; background: #f4e8da; border-radius: 25%; height: 1.4em; margin-top: -0.7em; margin-left: -0.7em; position: absolute; top: 50%; left: 50%; width: 1.4em; }
+        .cat__ears__ear--left { left: 0.5em; transform: rotate(20deg); }
+        .cat__ears__ear--right { right: 0.5em; transform: rotate(-20deg); }
+        
+        .cat__eyes { height: 1em; position: absolute; top: 1em; width: 100%; }
+        .cat__eyes__eye { background: #333; border: 0.06em solid #333; border-top: 0.12em solid #333; height: 1em; overflow: hidden; position: absolute; bottom: 0; width: 1.3em; }
+        .cat__eyes__eye:before { background: #69CC68; content: ""; height: 1em; position: absolute; top: 0; width: 1.2em; }
+        .cat__eyes__eye:after { background: #333; border-radius: 50%; content: ""; height: 1em; margin-top: -0.25em; position: absolute; top: 0em; width: 1em; }
+        .cat__eyes__eye span { background: #fff; border-radius: 50%; height: 0.2em; margin-left: -0.1em; margin-top: -0.2em; position: absolute; top: 50%; left: 50%; width: 0.2em; z-index: 1; }
+        .cat__eyes__eye--left { border-radius: 0 70% 0 70%; left: 1.1em; }
+        .cat__eyes__eye--left:before { border-radius: 0 50% 50% 50%; left: 0; }
+        .cat__eyes__eye--left:after { margin-left: -0.45em; left: 50%; }
+        .cat__eyes__eye--right { border-radius: 70% 0 70% 0; right: 1.1em; }
+        .cat__eyes__eye--right:before { border-radius: 50% 0 50% 50%; right: 0; }
+        .cat__eyes__eye--right:after { margin-right: -0.45em; right: 50%; }
+        .cat__eyes__eyelid { background: #bda46b; height: 0; position: absolute; left: 0; top: 0; width: 100%; z-index: 10; }
+        
+        .cat__nose { border-top: 0.5em solid #F26752; border-left: 0.5em solid transparent; border-right: 0.5em solid transparent; height: 0.5em; margin-left: -0.5em; position: absolute; top: 2.5em; left: 50%; width: 1em; }
+        .cat__mouth { margin-left: -1em; overflow: hidden; position: absolute; top: 3em; left: 50%; height: 1em; width: 2em; }
+        .cat__mouth:before, .cat__mouth:after { border: 0.01em solid #333; border-radius: 50%; content: ""; display: block; height: 0.8em; position: absolute; top: -0.4em; width: 50%; }
+        .cat__mouth:before { margin-left: -0.04em; left: 0; }
+        .cat__mouth:after { margin-right: -0.04em; right: 0; }
+        
+        .cat__whiskers { height: 1em; position: absolute; top: -1.5em; left: 0; width: 100%; z-index: 8; }
+        .cat__whiskers__whisker { height: 1em; position: absolute; top: 0; width: 2.5em; }
+        .cat__whiskers__whisker:before, .cat__whiskers__whisker:after, .cat__whiskers__whisker span { border-top: 0.03em solid #eee; height: 0.03em; position: absolute; left: 0; width: 2.5em; }
+        .cat__whiskers__whisker--left { margin-left: -0.5em; left: 0; }
+        .cat__whiskers__whisker--left:before { content: ""; top: 0; transform: rotate(10deg); }
+        .cat__whiskers__whisker--left:after { content: ""; margin-top: -0.005em; top: 0.5em; }
+        .cat__whiskers__whisker--left span { bottom: 0; transform: rotate(-10deg); }
+        .cat__whiskers__whisker--right { margin-right: -0.5em; right: 0; }
+        .cat__whiskers__whisker--right:before { content: ""; top: 0; transform: rotate(-10deg); }
+        .cat__whiskers__whisker--right:after { content: ""; margin-top: -0.005em; top: 0.5em; }
+        .cat__whiskers__whisker--right span { bottom: 0; transform: rotate(10deg); }
+        
+        .cat__hands { height: 1em; position: absolute; top: -0.5em; left: 0; width: 100%; z-index: 9; }
+        .cat__hands__hand { background: #a8925f; border-radius: 50%; height: 1em; overflow: hidden; position: absolute; top: 0.5em; width: 2em; }
+        .cat__hands__hand:before { border-right: 0.08em solid #333; content: ""; position: absolute; bottom: 0; left: 0; height: 0.3em; width: 0.6em; }
+        .cat__hands__hand:after { border-left: 0.08em solid #333; content: ""; position: absolute; bottom: 0; right: 0; height: 0.3em; width: 0.6em; }
+        .cat__hands__hand--left { left: 0; transform: rotate(-20deg); }
+        .cat__hands__hand--right { right: 0; transform: rotate(20deg); }
+        
+        .cat__legs { height: 1em; position: absolute; bottom: 0em; left: 0; width: 100%; z-index: 8; }
+        .cat__legs:after { background: #bda46b; border-radius: 100%; content: ""; height: 0.5em; margin-bottom: -0.25em; position: absolute; bottom: 0em; right: 0; width: 0.5em; z-index: 2; }
+        .cat__legs__leg { background: #a8925f; border-radius: 50%; height: 1em; overflow: hidden; position: absolute; top: 0; width: 2em; }
+        .cat__legs__leg:before { border-right: 0.08em solid #333; content: ""; position: absolute; top: 0; left: 0; height: 0.3em; width: 0.6em; }
+        .cat__legs__leg:after { border-left: 0.08em solid #333; content: ""; position: absolute; top: 0; right: 0; height: 0.3em; width: 0.6em; }
+        .cat__legs__leg--left { left: 0; transform: rotate(20deg); }
+        .cat__legs__leg--right { right: 0; transform: rotate(-20deg); }
+        
+        .cat__tail { height: 2em; position: absolute; bottom: 0.04em; left: 0; width: 100%; z-index: 0; }
+        .cat__tail__inner { background: #bda46b; border-radius: 0 0 3em 3em; height: 2em; overflow: hidden; position: absolute; top: 2em; left: 3em; width: 3em; }
+        .cat__tail__inner:before { background: var(--sidebar-bg); border-radius: 0 0 2em 2em; content: ""; height: 3em; margin-left: -1em; overflow: hidden; position: absolute; top: -1.5em; left: 50%; width: 2em; z-index: 4; }
+        .cat__tail__pattern { background: #695b3b; height: 0.2em; position: absolute; width: 0.5em; }
+        .cat__tail__pattern:nth-child(odd) { border-radius: 50% 0 0 50%; }
+        .cat__tail__pattern:nth-child(even) { border-radius: 0 50% 50% 0; }
+        .cat__tail__pattern--1 { top: 0.2em; left: 0.1em; }
+        .cat__tail__pattern--2 { top: 0.7em; left: -0.1em; transform: rotate(-30deg); }
+        .cat__tail__pattern--3 { top: 1em; left: 0.3em; transform: rotate(-50deg); }
+        .cat__tail__pattern--4 { top: 1.5em; left: 0.5em; transform: rotate(-60deg); }
+        .cat__tail__pattern--5 { top: 1.5em; left: 1.1em; transform: rotate(-80deg); }
+        .cat__tail__pattern--6 { top: 1.7em; left: 1.6em; transform: rotate(-100deg); }
+        .cat__tail__pattern--7 { top: 1.2em; left: 2em; transform: rotate(-130deg); }
+        .cat__tail__pattern--8 { top: 0.9em; left: 2.6em; transform: rotate(-150deg); }
+        .cat__tail__pattern--9 { top: 0.4em; left: 2.4em; transform: rotate(-180deg); z-index: 3; }
+
+        @keyframes blink-eye { 0% { height: 0; } 50% { height: 100%; } 100% { height: 0; } }
+        .blink { animation: blink-eye infinite 1s; }
     </style>
 </head>
 <body>
@@ -467,8 +685,85 @@
             </button>
         </div>
 
-        <div id="folder-info" style="margin-top: auto; font-size: 0.75rem; color: var(--text-sub);">
+        <div id="folder-info" style="font-size: 0.75rem; color: var(--text-sub);">
             Thư mục: Chưa chọn
+        </div>
+
+        <!-- Cat Clock -->
+        <div class="cat-clock-wrapper">
+            <div class="cat-clock-container">
+                <div class="clock">
+                    <div class="clock__inner">
+                        <ul class="clock__nums">
+                            <li class="clock__num clock__num--1"><span class="clock__num__text clock__num__text--1">1</span></li>
+                            <li class="clock__num clock__num--2"><span class="clock__num__text clock__num__text--2">2</span></li>
+                            <li class="clock__num clock__num--3"><span class="clock__num__text clock__num__text--3">3</span></li>
+                            <li class="clock__num clock__num--4"><span class="clock__num__text clock__num__text--4">4</span></li>
+                            <li class="clock__num clock__num--5"><span class="clock__num__text clock__num__text--5">5</span></li>
+                            <li class="clock__num clock__num--6"><span class="clock__num__text clock__num__text--6">6</span></li>
+                            <li class="clock__num clock__num--7"><span class="clock__num__text clock__num__text--7">7</span></li>
+                            <li class="clock__num clock__num--8"><span class="clock__num__text clock__num__text--8">8</span></li>
+                            <li class="clock__num clock__num--9"><span class="clock__num__text clock__num__text--9">9</span></li>
+                            <li class="clock__num clock__num--10"><span class="clock__num__text clock__num__text--10">10</span></li>
+                            <li class="clock__num clock__num--11"><span class="clock__num__text clock__num__text--11">11</span></li>
+                            <li class="clock__num clock__num--12"><span class="clock__num__text clock__num__text--12">12</span></li>
+                        </ul>
+                        <div class="clock__needles">
+                            <div class="clock__needle clock__needle--hour" id="hour"></div>
+                            <div class="clock__needle clock__needle--min" id="min"></div>
+                            <div class="clock__needle clock__needle--sec" id="sec"></div>
+                        </div>
+                    </div>
+                    <div class="cat">
+                        <div class="cat__ears">
+                            <div class="cat__ears__ear cat__ears__ear--left"></div>
+                            <div class="cat__ears__ear cat__ears__ear--right"></div>
+                        </div>
+                        <div class="cat__whiskers">
+                            <div class="cat__whiskers__whisker cat__whiskers__whisker--left"><span></span></div>
+                            <div class="cat__whiskers__whisker cat__whiskers__whisker--right"><span></span></div>
+                        </div>
+                        <div class="cat__face">
+                            <div class="cat__face__pattern cat__face__pattern--top"></div>
+                            <div class="cat__face__pattern cat__face__pattern--left"></div>
+                            <div class="cat__face__pattern cat__face__pattern--right"></div>
+                            <div class="cat__eyes">
+                                <div class="cat__eyes__eye cat__eyes__eye--left">
+                                    <div class="cat__eyes__eyelid cat__eyes__eyelid--left"></div>
+                                    <span></span>
+                                </div>
+                                <div class="cat__eyes__eye cat__eyes__eye--right">
+                                    <div class="cat__eyes__eyelid cat__eyes__eyelid--right"></div>
+                                    <span></span>
+                                </div>
+                            </div>
+                            <div class="cat__nose"></div>
+                            <div class="cat__mouth"></div>
+                        </div>
+                        <div class="cat__hands">
+                            <div class="cat__hands__hand cat__hands__hand--left"></div>
+                            <div class="cat__hands__hand cat__hands__hand--right"></div>
+                        </div>
+                        <div class="cat__legs">
+                            <div class="cat__legs__leg cat__legs__leg--left"></div>
+                            <div class="cat__legs__leg cat__legs__leg--right"></div>
+                        </div>
+                        <div class="cat__tail">
+                            <div class="cat__tail__inner">
+                                <span class="cat__tail__pattern cat__tail__pattern--1"></span>
+                                <span class="cat__tail__pattern cat__tail__pattern--2"></span>
+                                <span class="cat__tail__pattern cat__tail__pattern--3"></span>
+                                <span class="cat__tail__pattern cat__tail__pattern--4"></span>
+                                <span class="cat__tail__pattern cat__tail__pattern--5"></span>
+                                <span class="cat__tail__pattern cat__tail__pattern--6"></span>
+                                <span class="cat__tail__pattern cat__tail__pattern--7"></span>
+                                <span class="cat__tail__pattern cat__tail__pattern--8"></span>
+                                <span class="cat__tail__pattern cat__tail__pattern--9"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </aside>
 
@@ -616,6 +911,51 @@
         noteArea.oninput = () => {
             localStorage.setItem('wife_ai_knowledge', noteArea.value);
         };
+
+        // Cat Clock Logic
+        (() => {
+            class Cat {
+                constructor() { this._eyelids = document.querySelectorAll('.cat__eyes__eyelid'); }
+                blink() { this._eyelids.forEach((eyelid) => eyelid.classList.add('blink')); }
+            }
+            class Needles {
+                constructor() {
+                    this.needle = {
+                        sec: document.getElementById('sec'),
+                        min: document.getElementById('min'),
+                        hour: document.getElementById('hour')
+                    };
+                }
+                rotate(deg) {
+                    this.needle.sec.style.transform = `rotateZ(${deg.sec}deg)`;
+                    this.needle.min.style.transform = `rotateZ(${deg.min}deg)`;
+                    this.needle.hour.style.transform = `rotateZ(${deg.hour}deg)`;
+                }
+            }
+            const increment = { sec: (360 / 60), min: (360 / 60), hour: (360 / 12) };
+            class Clock {
+                constructor() {
+                    this.needles = new Needles;
+                    this.cat = new Cat;
+                    this.run();
+                }
+                run() {
+                    const date = new Date();
+                    const sec = date.getSeconds();
+                    const min = date.getMinutes();
+                    const hour = date.getHours();
+                    const deg = {
+                        sec: sec * increment.sec,
+                        min: min * increment.min,
+                        hour: hour * increment.hour + min * (360 / 12 / 60)
+                    };
+                    if (sec % 5 === 0) this.cat.blink();
+                    this.needles.rotate(deg);
+                    requestAnimationFrame(this.run.bind(this));
+                }
+            }
+            new Clock;
+        })();
     </script>
 </body>
 </html>
