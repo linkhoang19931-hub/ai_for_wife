@@ -17,8 +17,11 @@ window.onload = () => {
 function logDebug(msg, isError = false) {
     const logEl = document.getElementById('debug-log');
     if (!logEl) return;
+    logEl.style.display = 'block';
     const line = document.createElement('div');
     line.style.color = isError ? '#ff4d4d' : '#0f0';
+    line.style.fontSize = '0.7rem';
+    line.style.marginBottom = '2px';
     line.innerHTML = `[${new Date().toLocaleTimeString()}] ${msg}`;
     logEl.prepend(line);
 }
@@ -29,20 +32,21 @@ function switchTab(mode) {
     tabs.forEach(t => {
         const area = document.getElementById(t + '-area');
         const btn = document.getElementById('tab-' + t);
-        if (area) area.style.display = (t === mode) ? 'flex' : 'none';
+        if (area) area.style.display = (t === mode) ? 'block' : 'none';
         if (btn) btn.classList.toggle('active', t === mode);
     });
 
     const noteArea = document.getElementById('note-area');
+    const previewArea = document.getElementById('preview-area');
     const footer = document.querySelector('.editor-footer');
     
     if (mode === 'law') {
         if(noteArea) noteArea.style.display = 'none';
         if(footer) footer.style.display = 'none';
+        fetchLegalDocs(); // Tự động làm mới khi vào tab
     } else if (mode === 'preview') {
         if(noteArea) noteArea.style.display = 'none';
         if(footer) footer.style.display = 'flex';
-        const previewArea = document.getElementById('preview-area');
         if (typeof marked !== 'undefined' && previewArea) {
             previewArea.innerHTML = marked.parse(noteArea.value || '');
         }
@@ -61,8 +65,7 @@ function initDraggableClock() {
     let currentX, currentY, initialX, initialY;
     let xOffset = 0, yOffset = 0;
 
-    // Load saved position
-    const saved = JSON.parse(localStorage.getItem('clock_pos_v2') || 'null');
+    const saved = JSON.parse(localStorage.getItem('clock_pos_v3') || 'null');
     if (saved) {
         xOffset = saved.x;
         yOffset = saved.y;
@@ -100,61 +103,82 @@ function initDraggableClock() {
     function dragEnd() {
         isDragging = false;
         clock.style.transition = "transform 0.2s ease-out";
-        localStorage.setItem('clock_pos_v2', JSON.stringify({x: xOffset, y: yOffset}));
+        localStorage.setItem('clock_pos_v3', JSON.stringify({x: xOffset, y: yOffset}));
     }
 }
 
-// --- LEGAL RADAR (Direct MOJ API) ---
+// --- MULTI-SOURCE LEGAL RADAR ---
 async function fetchLegalDocs() {
     const listEl = document.getElementById('law-list');
     if (!listEl) return;
-    listEl.innerHTML = "<div style='grid-column: span 3; text-align:center;'>🔍 Radar đang quét...</div>";
+    listEl.innerHTML = "<div style='grid-column: span 3; text-align:center; padding:20px;'>🔍 Radar đang quét đa tầng...</div>";
     
-    const apiURL = 'https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/all';
-    
-    const fetchFromMOJ = async (payload) => {
-        // Thử gọi trực tiếp trước, nếu fail mới dùng proxy
-        try {
-            const response = await fetch(apiURL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            return await response.json();
-        } catch (e) {
-            logDebug("Direct fetch failed, trying proxy...", true);
-            const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(apiURL)}&v=${Date.now()}`;
-            const res = await fetch(proxy);
-            const data = await res.json();
-            // AllOrigins trả về string trong contents, cần parse lại
-            return JSON.parse(data.contents);
-        }
+    logDebug("Khởi động Radar đa nguồn...");
+
+    // Phương án 1: Gọi trực tiếp API Bộ Tư Pháp (Dành cho máy đã cài Allow CORS extension)
+    const fetchDirect = async (payload) => {
+        const url = 'https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/all';
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        return await res.json();
+    };
+
+    // Phương án 2: Gọi qua Proxy AllOrigins
+    const fetchProxy = async (payload) => {
+        const target = 'https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/all';
+        // AllOrigins POST proxy qua tham số url
+        const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(target)}&v=${Date.now()}`;
+        const res = await fetch(proxy);
+        const data = await res.json();
+        return JSON.parse(data.contents); 
     };
 
     try {
-        logDebug("Đang quét Radar Bộ Tư Pháp...");
-        const [latest, coming, expiring] = await Promise.all([
-            fetchFromMOJ({ pageSize: 8, pageIndex: 0, sortDirection: "desc", sortBy: "issueDate" }),
-            fetchFromMOJ({ pageSize: 8, pageNumber: 1, comingSoon: true, sortDirection: "desc", sortBy: "issueDate" }),
-            fetchFromMOJ({ pageSize: 8, pageNumber: 1, expiringSoon: true, sortDirection: "desc", sortBy: "issueDate" })
-        ]);
+        logDebug("Thử kết nối trực tiếp Bộ Tư Pháp...");
+        let results;
+        try {
+            results = await Promise.all([
+                fetchDirect({ pageSize: 6, pageIndex: 0, sortDirection: "desc", sortBy: "issueDate" }),
+                fetchDirect({ pageSize: 6, pageNumber: 1, comingSoon: true, sortDirection: "desc", sortBy: "issueDate" }),
+                fetchDirect({ pageSize: 6, pageNumber: 1, expiringSoon: true, sortDirection: "desc", sortBy: "issueDate" })
+            ]);
+            logDebug("Kết nối trực tiếp thành công!");
+        } catch (e) {
+            logDebug("Trực tiếp thất bại, thử qua Proxy...", true);
+            results = await Promise.all([
+                fetchProxy({ pageSize: 6, pageIndex: 0, sortDirection: "desc", sortBy: "issueDate" }),
+                fetchProxy({ pageSize: 6, pageNumber: 1, comingSoon: true, sortDirection: "desc", sortBy: "issueDate" }),
+                fetchProxy({ pageSize: 6, pageNumber: 1, expiringSoon: true, sortDirection: "desc", sortBy: "issueDate" })
+            ]);
+            logDebug("Proxy phản hồi thành công!");
+        }
 
         renderLawGrid({
-            new: latest?.data?.items || [],
-            coming: coming?.data?.items || [],
-            expiring: expiring?.data?.items || []
+            new: results[0]?.data?.items || [],
+            coming: results[1]?.data?.items || [],
+            expiring: results[2]?.data?.items || []
         });
-        logDebug("Radar quét thành công!");
-    } catch (e) {
-        logDebug(`Lỗi Radar: ${e.message}`, true);
-        listEl.innerHTML = `<div style='grid-column: span 3; text-align:center; color:#ff4d4d;'>⚠️ Lỗi kết nối. Vui lòng thử lại hoặc mở <a href='https://vbpl.vn' target='_blank'>vbpl.vn</a></div>`;
+
+    } catch (err) {
+        logDebug(`Radar lỗi: ${err.message}`, true);
+        listEl.innerHTML = `
+            <div style='grid-column: span 3; text-align:center; padding:20px;'>
+                <p style='color:#ff4d4d;'>⚠️ Radar bị nhiễu sóng (Lỗi CORS).</p>
+                <div style='background:#1a1a1a; padding:10px; border-radius:8px; margin:10px auto; max-width:400px; font-size:0.75rem; color:#ccc; text-align:left;'>
+                    💡 <b>Mẹo cho Luật sư:</b> Để radar chạy mượt nhất, Vợ nhờ chồng cài extension "Allow CORS" trên Chrome nhé!
+                </div>
+                <button class="btn-primary" onclick="window.open('https://vbpl.vn', '_blank')">Mở VBPL.vn chính thống ↗️</button>
+            </div>
+        `;
     }
 }
 
 function renderLawGrid(data) {
     const listEl = document.getElementById('law-list');
-    
-    const createCol = (title, items, color) => {
+    const createCol = (title, items, color, emptyMsg) => {
         const cards = items.map(item => `
             <div class="law-card" style="border-left: 3px solid ${color}" onclick="window.open('https://vbpl.vn/search/Pages/chi-tiet-van-ban.aspx?ItemID=${item.id}', '_blank')">
                 <span class="law-title">${item.title}</span>
@@ -162,14 +186,14 @@ function renderLawGrid(data) {
                 <div class="law-meta">📅 ${item.issueDate ? new Date(item.issueDate).toLocaleDateString('vi-VN') : ''}</div>
             </div>
         `).join('');
-        return `<div class="law-column"><h3>${title}</h3>${cards || '<p style="font-size:0.7rem; color:gray;">Trống</p>'}</div>`;
+        return `<div class="law-column"><h3>${title}</h3>${cards || `<p style="font-size:0.7rem; color:gray; text-align:center; padding:10px;">${emptyMsg}</p>`}</div>`;
     };
 
     listEl.innerHTML = `
         <div class="law-grid" style="grid-column: span 3; width: 100%;">
-            ${createCol("🆕 Mới ban hành", data.new, "#4F46E5")}
-            ${createCol("⏳ Sắp hiệu lực", data.coming, "#F59E0B")}
-            ${createCol("⚠️ Sắp hết hạn", data.expiring, "#EF4444")}
+            ${createCol("🆕 Mới ban hành", data.new, "#4F46E5", "Chưa có văn bản mới")}
+            ${createCol("⏳ Sắp hiệu lực", data.coming, "#F59E0B", "Không có văn bản sắp hiệu lực")}
+            ${createCol("⚠️ Sắp hết hạn", data.expiring, "#EF4444", "Mọi thứ vẫn ổn định")}
         </div>
     `;
 }

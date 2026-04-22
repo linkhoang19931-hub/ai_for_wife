@@ -114,7 +114,9 @@
 
     <button id="exit-focus" class="btn-primary" onclick="toggleFocusMode()">Thoát chế độ tập trung 🧘</button>
 
-    <!-- App Logic -->
-    <script src="src/js/main.js"></script>
+    <!-- App Logic with Cache Buster -->
+    <script>
+        document.write('<script src="src/js/main.js?v=' + Date.now() + '"><\/script>');
+    </script>
 </body>
 </html>
