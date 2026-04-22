@@ -1,0 +1,123 @@
+:root {
+    --primary: #4F46E5;
+    --bg-main: #F9FAFB;
+    --bg-card: #FFFFFF;
+    --text-main: #111827;
+    --text-sub: #6B7280;
+    --border: #E5E7EB;
+    --sidebar-bg: #FFFFFF;
+    --cat-main: #9D9D9D;
+    --cat-pattern: #6D6D6D;
+}
+
+body.dark-mode {
+    --bg-main: #111827;
+    --bg-card: #1F2937;
+    --text-main: #F9FAFB;
+    --text-sub: #9CA3AF;
+    --border: #374151;
+    --sidebar-bg: #111827;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+/* Sidebar */
+aside {
+    width: 260px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    z-index: 10;
+    flex-shrink: 0; /* Đảm bảo sidebar không bị co lại */
+}
+
+body.focus-mode aside { display: none; }
+body.focus-mode main { max-width: 900px; margin: 0 auto; padding-top: 40px; }
+
+.brand { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
+.nav-group { margin-bottom: 20px; }
+.nav-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-sub); margin-bottom: 10px; display: block; }
+
+.btn-nav {
+    width: 100%; padding: 10px; border-radius: 8px; border: none; background: transparent;
+    color: var(--text-main); font-size: 0.85rem; font-weight: 500; text-align: left; cursor: pointer;
+    display: flex; align-items: center; gap: 10px; margin-bottom: 2px; transition: all 0.2s;
+}
+.btn-nav:hover { background: rgba(79, 70, 229, 0.1); color: var(--primary); }
+.btn-nav svg { width: 18px; height: 18px; stroke-width: 2; }
+
+main { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    padding: 24px; 
+    position: relative; 
+    overflow: hidden; 
+    min-width: 0; /* Quan trọng để flex child không bị tràn */
+}
+
+/* Cat Clock Container Fix */
+.cat-clock-pos {
+    position: absolute; top: 20px; right: 20px; width: 120px; height: 160px; z-index: 100;
+    display: flex; justify-content: flex-end; align-items: flex-start;
+    pointer-events: none;
+}
+.clock-scale-wrapper { transform: scale(0.35); transform-origin: top right; margin-top: 140px; }
+
+header { padding-right: 150px; margin-bottom: 20px; }
+.editor-header { display: flex; gap: 8px; }
+.tab-btn { padding: 10px 20px; border: 1px solid var(--border); border-bottom: none; background: rgba(0,0,0,0.03); border-radius: 10px 10px 0 0; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--text-sub); }
+.tab-btn.active { background: var(--bg-card); border-bottom: 1px solid var(--bg-card); color: var(--primary); }
+
+.editor-container { 
+    flex: 1; 
+    background: var(--bg-card); 
+    border: 1px solid var(--border); 
+    border-radius: 0 12px 12px 12px; 
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden; 
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+}
+
+#note-area, #preview-area, #law-area { 
+    flex: 1; 
+    padding: 24px; 
+    font-size: 1rem; 
+    line-height: 1.6; 
+    overflow-y: auto; 
+    outline: none; 
+    color: var(--text-main); 
+}
+#preview-area, #law-area { display: none; }
+#preview-area img { max-width: 100%; }
+
+/* Law Hub Styles */
+.law-card { background: rgba(0,0,0,0.02); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+.law-tag { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; margin-right: 8px; }
+.tag-new { background: #D1FAE5; color: #065F46; }
+.tag-effect { background: #FEF3C7; color: #92400E; }
+.law-title { font-weight: 600; font-size: 0.95rem; display: block; margin-top: 8px; }
+.law-meta { font-size: 0.8rem; color: var(--text-sub); margin-top: 4px; display: flex; gap: 15px; }
+
+.editor-footer { padding: 12px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.btn-primary { background: var(--primary); color: white; padding: 10px 24px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
+
+.todo-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+.todo-item.done span { text-decoration: line-through; color: var(--text-sub); }
+.btn-delete { background: none; border: none; color: #EF4444; cursor: pointer; font-size: 0.7rem; padding: 4px; opacity: 0.5; }
+.btn-delete:hover { opacity: 1; }
+
+#exit-focus { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: none; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+body.focus-mode #exit-focus { display: block; }
