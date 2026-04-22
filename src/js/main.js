@@ -124,33 +124,41 @@ async function fetchLegalDocs() {
     };
 
     const fetchRSS = async (name, url) => {
-        try {
-            logDebug(`Đang tải luồng: ${name}...`);
-            const proxyURL = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}&timestamp=${new Date().getTime()}`;
-            const response = await fetch(proxyURL);
-            
-            if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
-            
-            const data = await response.json();
-            if (!data.contents) throw new Error("Proxy không trả về nội dung (contents empty)");
-            
-            const parser = new DOMParser();
-            const xml = parser.parseFromString(data.contents, "text/xml");
-            
-            const parseError = xml.querySelector("parsererror");
-            if (parseError) throw new Error("Lỗi cấu trúc XML");
+        const proxies = [
+            (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}&v=${Date.now()}`,
+            (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`
+        ];
 
-            const items = Array.from(xml.querySelectorAll("item")).slice(0, 8);
-            logDebug(`Thành công luồng ${name}: ${items.length} mục.`);
-            
-            return items.map(item => ({
-                title: item.querySelector("title")?.textContent || "Văn bản",
-                link: item.querySelector("link")?.textContent || "#",
-                pubDate: item.querySelector("pubDate")?.textContent || ""
-            }));
-        } catch (e) {
-            logDebug(`Lỗi luồng ${name}: ${e.message}`, true);
-            return [];
+        for (let i = 0; i < proxies.length; i++) {
+            try {
+                logDebug(`Đang tải ${name} (Proxy ${i + 1})...`);
+                const response = await fetch(proxies[i](url));
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const xmlText = await response.text();
+                if (!xmlText || xmlText.length < 100) throw new Error("Dữ liệu quá ngắn hoặc rỗng");
+
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(xmlText, "text/xml");
+                
+                if (xml.querySelector("parsererror")) throw new Error("Lỗi định dạng XML");
+
+                const items = Array.from(xml.querySelectorAll("item")).slice(0, 8);
+                if (items.length === 0) throw new Error("Không tìm thấy thẻ <item>");
+
+                logDebug(`Thành công luồng ${name}: ${items.length} mục.`);
+                
+                return items.map(item => ({
+                    title: item.querySelector("title")?.textContent || "Văn bản",
+                    link: item.querySelector("link")?.textContent || "#",
+                    pubDate: item.querySelector("pubDate")?.textContent || ""
+                }));
+            } catch (e) {
+                logDebug(`Proxy ${i + 1} lỗi cho ${name}: ${e.message}`, true);
+                if (i === proxies.length - 1) return []; // Nếu là proxy cuối cùng thì mới bỏ cuộc
+                logDebug(`Đang thử lại ${name} với Proxy dự phòng...`);
+            }
         }
     };
 
