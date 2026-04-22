@@ -1,4 +1,4 @@
-// Lawyer Intelligence Hub Pro - Main Logic
+// Lawyer Intelligence Hub Pro - "Stealth Radar" Engine
 let todos = JSON.parse(localStorage.getItem('wife_todos') || '[]');
 let directoryHandle = null;
 
@@ -21,7 +21,6 @@ function logDebug(msg, isError = false) {
     const line = document.createElement('div');
     line.style.color = isError ? '#ff4d4d' : '#0f0';
     line.style.fontSize = '0.7rem';
-    line.style.marginBottom = '2px';
     line.innerHTML = `[${new Date().toLocaleTimeString()}] ${msg}`;
     logEl.prepend(line);
 }
@@ -36,134 +35,137 @@ function switchTab(mode) {
         if (btn) btn.classList.toggle('active', t === mode);
     });
 
-    const noteArea = document.getElementById('note-area');
-    const previewArea = document.getElementById('preview-area');
-    const footer = document.querySelector('.editor-footer');
-    
-    if (mode === 'law') {
-        if(noteArea) noteArea.style.display = 'none';
-        if(footer) footer.style.display = 'none';
-    } else if (mode === 'preview') {
-        if(noteArea) noteArea.style.display = 'none';
-        if(footer) footer.style.display = 'flex';
+    if (mode === 'law') fetchLegalDocs();
+    if (mode === 'preview') {
+        const previewArea = document.getElementById('preview-area');
+        const noteArea = document.getElementById('note-area');
         if (typeof marked !== 'undefined' && previewArea) {
             previewArea.innerHTML = marked.parse(noteArea.value || '');
         }
-    } else {
-        if(noteArea) noteArea.style.display = 'block';
-        if(footer) footer.style.display = 'flex';
     }
 }
 
-// --- DRAG & DROP SYSTEM ---
+// --- STEALTH DRAG SYSTEM (Photoshop Style) ---
 function initDraggableClock() {
     const clock = document.querySelector('.cat-clock-pos');
     if (!clock) return;
 
     let isDragging = false;
-    let currentX, currentY, initialX, initialY;
-    let xOffset = 0, yOffset = 0;
+    let startX, startY;
+    let initialTranslateX = 0, initialTranslateY = 0;
 
-    const saved = JSON.parse(localStorage.getItem('clock_pos_v3') || 'null');
+    // Load saved position
+    const saved = JSON.parse(localStorage.getItem('clock_pos_v4') || 'null');
     if (saved) {
-        xOffset = saved.x;
-        yOffset = saved.y;
-        setTranslate(xOffset, yOffset, clock);
+        initialTranslateX = saved.x;
+        initialTranslateY = saved.y;
+        clock.style.transform = `translate3d(${initialTranslateX}px, ${initialTranslateY}px, 0)`;
     }
 
     clock.addEventListener("mousedown", (e) => {
-        initialX = e.clientX - xOffset;
-        initialY = e.clientY - yOffset;
-        if (e.target === clock || clock.contains(e.target)) {
-            isDragging = true;
-            clock.style.transition = "none";
-        }
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        clock.style.transition = "none";
+        clock.style.zIndex = 10000;
     });
 
     document.addEventListener("mousemove", (e) => {
-        if (isDragging) {
-            e.preventDefault();
-            currentX = e.clientX - initialX;
-            currentY = e.clientY - initialY;
-            xOffset = currentX;
-            yOffset = currentY;
-            setTranslate(currentX, currentY, clock);
-        }
+        if (!isDragging) return;
+        e.preventDefault();
+        
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+
+        const currentX = initialTranslateX + deltaX;
+        const currentY = initialTranslateY + deltaY;
+
+        clock.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+        
+        // Cập nhật giá trị tạm thời để khi nhả chuột ko bị giật
+        clock.dataset.lastX = currentX;
+        clock.dataset.lastY = currentY;
     });
 
-    function setTranslate(xPos, yPos, el) {
-        el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
-    }
-
     document.addEventListener("mouseup", () => {
+        if (!isDragging) return;
         isDragging = false;
+        initialTranslateX = parseFloat(clock.dataset.lastX) || initialTranslateX;
+        initialTranslateY = parseFloat(clock.dataset.lastY) || initialTranslateY;
         clock.style.transition = "transform 0.2s ease-out";
-        localStorage.setItem('clock_pos_v3', JSON.stringify({x: xOffset, y: yOffset}));
+        localStorage.setItem('clock_pos_v4', JSON.stringify({x: initialTranslateX, y: initialTranslateY}));
     });
 }
 
-// --- ADVANCED LEGAL RADAR ---
+// --- MULTI-PROXY RADAR (Hacker Edition) ---
 async function fetchLegalDocs() {
     const listEl = document.getElementById('law-list');
     if (!listEl) return;
-    listEl.innerHTML = "<div style='grid-column: span 3; text-align:center; padding:20px;'>🔍 Radar đang quét đa tầng...</div>";
+    listEl.innerHTML = "<div style='grid-column: span 3; text-align:center; padding:20px;'>📡 Đang quét Radar Stealth (Thử nghiệm đa tầng)...</div>";
     
-    logDebug("Khởi động Radar...");
+    logDebug("Khởi động Radar đa tầng...");
 
-    const apiURL = 'https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/all';
-    
-    const smartFetch = async (payload) => {
-        const fetchOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        };
+    const feeds = {
+        vanban: 'https://thuvienphapluat.vn/rss/vbm.rss',
+        duthao: 'https://thuvienphapluat.vn/rss/dt.rss',
+        congvan: 'https://thuvienphapluat.vn/rss/cv.rss'
+    };
 
-        try {
-            // Thử 1: Gọi trực tiếp
-            const res = await fetch(apiURL, fetchOptions);
-            if (res.ok) return await res.json();
-            throw new Error("Direct fail");
-        } catch (e) {
-            // Thử 2: Qua Proxy hỗ trợ POST (corsproxy.io)
-            logDebug("Đang dùng kênh dự phòng (Proxy)...");
+    // Danh sách Proxy "Ngầm" để lách luật
+    const proxies = [
+        (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+        (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+        (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+        (u) => `https://thingproxy.freeboard.io/fetch/${u}`
+    ];
+
+    const stealthFetch = async (name, url) => {
+        for (let i = 0; i < proxies.length; i++) {
             try {
-                const proxyURL = 'https://corsproxy.io/?' + encodeURIComponent(apiURL);
-                const resProxy = await fetch(proxyURL, fetchOptions);
-                const text = await resProxy.text();
-                
-                if (text.trim().startsWith('{')) {
-                    return JSON.parse(text);
-                } else {
-                    throw new Error("Proxy returned non-JSON (Oops)");
-                }
-            } catch (e2) {
-                logDebug(`Kênh dự phòng lỗi: ${e2.message}`, true);
-                return null;
+                logDebug(`[${name}] Đang thử Động cơ ${i + 1}...`);
+                const response = await fetch(proxies[i](url), { cache: 'no-store' });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const text = await response.text();
+                if (text.length < 500) throw new Error("Dữ liệu không đủ độ dài.");
+
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(text, "text/xml");
+                if (xml.querySelector("parsererror")) throw new Error("XML Corrupted.");
+
+                const items = Array.from(xml.querySelectorAll("item")).slice(0, 8).map(item => ({
+                    title: item.querySelector("title")?.textContent || "Văn bản",
+                    link: item.querySelector("link")?.textContent || "#",
+                    pubDate: item.querySelector("pubDate")?.textContent || ""
+                }));
+
+                logDebug(`[${name}] Đã lấy được ${items.length} tin.`);
+                return items;
+            } catch (e) {
+                logDebug(`[${name}] Động cơ ${i + 1} kẹt: ${e.message.slice(0, 20)}...`, true);
             }
         }
+        return [];
     };
 
     try {
-        // Quét tuần tự để tránh bị Proxy chặn do spam requests
-        const latest = await smartFetch({ pageSize: 6, pageIndex: 0, sortDirection: "desc", sortBy: "issueDate" });
-        const coming = await smartFetch({ pageSize: 6, pageNumber: 1, comingSoon: true, sortDirection: "desc", sortBy: "issueDate" });
-        const expiring = await smartFetch({ pageSize: 6, pageNumber: 1, expiringSoon: true, sortDirection: "desc", sortBy: "issueDate" });
+        // Chạy song song nhưng xử lý từng luồng
+        const [vb, dt, cv] = await Promise.all([
+            stealthFetch("Văn bản", feeds.vanban),
+            stealthFetch("Dự thảo", feeds.duthao),
+            stealthFetch("Công văn", feeds.congvan)
+        ]);
 
-        if (!latest && !coming && !expiring) throw new Error("Cả 3 luồng đều thất bại.");
+        if (!vb.length && !dt.length && !cv.length) throw new Error("Tất cả vệ tinh bị chặn.");
 
-        renderLawGrid({
-            new: latest?.data?.items || [],
-            coming: coming?.data?.items || [],
-            expiring: expiring?.data?.items || []
-        });
+        renderLawGrid({ vanban: vb, duthao: dt, congvan: cv });
         logDebug("Radar quét hoàn tất!");
     } catch (err) {
-        logDebug(`Radar lỗi hệ thống: ${err.message}`, true);
+        logDebug(`THẤT BẠI: ${err.message}`, true);
         listEl.innerHTML = `
             <div style='grid-column: span 3; text-align:center; padding:20px;'>
-                <p style='color:#ff4d4d;'>⚠️ Radar bị chặn (Lỗi CORS).</p>
-                <button class="btn-primary" onclick="window.open('https://vbpl.vn', '_blank')" style="margin-top:10px;">Mở VBPL.vn thủ công ↗️</button>
+                <p style='color:#ff4d4d;'>⚠️ Không thể quét radar tự động (CORS Security).</p>
+                <button class="btn-primary" onclick="window.open('https://thuvienphapluat.vn/tra-cuu-phap-luat-moi.aspx', '_blank')" style="margin-top:10px;">Mở Thư Viện Pháp Luật chính thống ↗️</button>
             </div>
         `;
     }
@@ -171,22 +173,21 @@ async function fetchLegalDocs() {
 
 function renderLawGrid(data) {
     const listEl = document.getElementById('law-list');
-    const createCol = (title, items, color, empty) => {
+    const createCol = (title, items, color) => {
         const cards = items.map(item => `
-            <div class="law-card" style="border-left: 3px solid ${color}" onclick="window.open('https://vbpl.vn/search/Pages/chi-tiet-van-ban.aspx?ItemID=${item.id}', '_blank')">
+            <div class="law-card" style="border-left: 3px solid ${color}" onclick="window.open('${item.link}', '_blank')">
                 <span class="law-title">${item.title}</span>
-                <div class="law-meta">📄 ${item.docNum || 'Số hiệu...'}</div>
-                <div class="law-meta">📅 ${item.issueDate ? new Date(item.issueDate).toLocaleDateString('vi-VN') : ''}</div>
+                <div class="law-meta">📅 ${item.pubDate ? new Date(item.pubDate).toLocaleDateString('vi-VN') : 'Mới'}</div>
             </div>
         `).join('');
-        return `<div class="law-column"><h3>${title}</h3>${cards || `<p style="font-size:0.7rem; color:gray; text-align:center; padding:10px;">${empty}</p>`}</div>`;
+        return `<div class="law-column"><h3>${title}</h3>${cards || '<p style="font-size:0.7rem; color:gray; text-align:center; padding:10px;">Trống</p>'}</div>`;
     };
 
     listEl.innerHTML = `
         <div class="law-grid" style="grid-column: span 3; width: 100%;">
-            ${createCol("🆕 Mới ban hành", data.new, "#4F46E5", "Chưa có tin mới")}
-            ${createCol("⏳ Sắp hiệu lực", data.coming, "#F59E0B", "Trống")}
-            ${createCol("⚠️ Sắp hết hạn", data.expiring, "#EF4444", "Trống")}
+            ${createCol("⚖️ Văn bản mới", data.vanban, "#4F46E5")}
+            ${createCol("📝 Dự thảo mới", data.duthao, "#F59E0B")}
+            ${createCol("✉️ Công văn mới", data.congvan, "#10B981")}
         </div>
     `;
 }
@@ -212,16 +213,9 @@ function addTodo() {
     if(text) { todos.push({text, done:false}); renderTodos(); } 
 }
 
-function deleteTodo(i) { 
-    if(confirm("Xóa việc này?")) { todos.splice(i, 1); renderTodos(); } 
-}
+function deleteTodo(i) { if(confirm("Xóa?")) { todos.splice(i, 1); renderTodos(); } }
+function toggleTodo(i) { todos[i].done = !todos[i].done; renderTodos(); }
 
-function toggleTodo(i) { 
-    todos[i].done = !todos[i].done; 
-    renderTodos(); 
-}
-
-// --- UI CONTROLS ---
 function toggleDarkMode() { 
     document.body.classList.toggle('dark-mode'); 
     localStorage.setItem('dark_mode', document.body.classList.contains('dark-mode')); 
@@ -229,20 +223,15 @@ function toggleDarkMode() {
 
 function toggleFocusMode() { document.body.classList.toggle('focus-mode'); }
 
-async function selectFolder() { 
-    try { directoryHandle = await window.showDirectoryPicker(); } catch(e){ alert("Cần quyền truy cập."); } 
-}
+async function selectFolder() { try { directoryHandle = await window.showDirectoryPicker(); } catch(e){ alert("Cần quyền."); } }
 
 async function saveAsNewFile() {
-    if(!directoryHandle) return alert("Vợ chọn thư mục lưu trước nhé!");
+    if(!directoryHandle) return alert("Chọn thư mục lưu!");
     try {
         let idx = parseInt(localStorage.getItem('last_idx') || '0') + 1;
         const h = await directoryHandle.getFileHandle(`hoso_luatsu_${idx}.md`, {create:true});
-        const w = await h.createWritable(); 
-        await w.write(document.getElementById('note-area').value); 
-        await w.close();
-        localStorage.setItem('last_idx', idx); 
-        alert("Lưu thành công!");
+        const w = await h.createWritable(); await w.write(document.getElementById('note-area').value); await w.close();
+        localStorage.setItem('last_idx', idx); alert("Lưu thành công!");
     } catch(e) { alert("Lỗi: " + e.message); }
 }
 
@@ -250,12 +239,8 @@ async function loadFileForAI() {
     try {
         const hs = await window.showOpenFilePicker({multiple:true});
         let c = "Nội dung hồ sơ:\n\n";
-        for(const h of hs) { 
-            const f = await h.getFile(); 
-            c += `--- ${f.name} ---\n${await f.text()}\n\n`; 
-        }
-        navigator.clipboard.writeText(c); 
-        alert("Đã nạp hồ sơ! Hãy dán vào Chat AI.");
+        for(const h of hs) { const f = await h.getFile(); c += `--- ${f.name} ---\n${await f.text()}\n\n`; }
+        navigator.clipboard.writeText(c); alert("Đã nạp vào clipboard!");
     } catch(e){}
 }
 
@@ -281,6 +266,5 @@ function startClock() {
             setTimeout(() => { eyelidL.classList.remove('blink'); eyelidR.classList.remove('blink'); }, 200);
         }
     }
-    setInterval(update, 1000);
-    update();
+    setInterval(update, 1000); update();
 }
