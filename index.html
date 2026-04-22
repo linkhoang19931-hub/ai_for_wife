@@ -354,25 +354,32 @@
             showNotification("Đã copy nội dung ghi chú!");
         }
 
-        // Nạp kiến thức từ file có sẵn trên máy
+        // Nạp kiến thức từ nhiều file cùng lúc
         async function loadFileForAI() {
             try {
-                const [fileHandle] = await window.showOpenFilePicker({
+                const fileHandles = await window.showOpenFilePicker({
                     types: [{
                         description: 'Markdown Files',
                         accept: { 'text/markdown': ['.md'], 'text/plain': ['.txt'] }
                     }],
-                    multiple: false
+                    multiple: true
                 });
-                const file = await fileHandle.getFile();
-                const content = await file.text();
+
+                let combinedContent = "Dưới đây là tổng hợp kiến thức từ nhiều file tôi đã lưu. Hãy ghi nhớ toàn bộ nội dung này:\n\n";
                 
-                const prompt = `Dưới đây là kiến thức quan trọng từ file '${file.name}', hãy ghi nhớ nó:\n\n---\n${content}\n---`;
-                await navigator.clipboard.writeText(prompt);
+                for (const handle of fileHandles) {
+                    const file = await handle.getFile();
+                    const content = await file.text();
+                    combinedContent += `=== BẮT ĐẦU FILE: ${file.name} ===\n${content}\n=== KẾT THÚC FILE: ${file.name} ===\n\n`;
+                }
                 
-                showNotification(`Đã nạp file: ${file.name}. Giờ hãy dán (Ctrl+V) vào Chat nhé!`);
+                await navigator.clipboard.writeText(combinedContent);
+                showNotification(`Đã nạp ${fileHandles.length} file kiến thức. Giờ hãy dán (Ctrl+V) vào Chat nhé!`);
             } catch (err) {
-                console.error(err);
+                if (err.name !== 'AbortError') {
+                    console.error(err);
+                    alert("Có lỗi khi đọc file: " + err.message);
+                }
             }
         }
 
