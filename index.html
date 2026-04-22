@@ -3,216 +3,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Knowledge Hub - Dành tặng Vợ yêu</title>
+    <title>AI Knowledge Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body, html {
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-main: #F9FAFB;
+            --bg-card: #FFFFFF;
+            --text-main: #111827;
+            --text-sub: #6B7280;
+            --border: #E5E7EB;
+            --sidebar-bg: #FFFFFF;
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            height: 100%;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
         }
-        #app-container {
-            width: 95%;
-            height: 90vh;
-            background: white;
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            height: 100vh;
             display: flex;
-            flex-direction: column;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border-radius: 15px;
             overflow: hidden;
         }
-        #header {
-            padding: 15px 25px;
-            background: #ffffff;
-            border-bottom: 1px solid #eee;
+
+        /* Sidebar */
+        aside {
+            width: 280px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            z-index: 10;
+        }
+
+        .brand {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 32px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-group {
+            margin-bottom: 24px;
+        }
+
+        .nav-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-sub);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .btn-nav {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+        }
+
+        .btn-nav:hover {
+            background: #F3F4F6;
+        }
+
+        .btn-nav.active {
+            background: #EEF2FF;
+            color: var(--primary);
+        }
+
+        .btn-nav svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 32px;
+            gap: 24px;
+            overflow: hidden;
+        }
+
+        header {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .logo-area { display: flex; align-items: center; gap: 10px; }
-        .logo-icon { font-size: 24px; }
-        .title { font-weight: 700; color: #1a73e8; font-size: 1.2rem; }
-        
-        #main-content {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
+
+        .header-info h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
         }
-        
-        #chat-sidebar {
-            width: 300px;
-            background: #f8f9fa;
-            border-right: 1px solid #eee;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+
+        .header-info p {
+            font-size: 0.9rem;
+            color: var(--text-sub);
         }
-        
-        #note-area-container {
-            flex: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
+
+        .status-pill {
+            padding: 6px 12px;
+            background: #ECFDF5;
+            color: #065F46;
+            border-radius: 20px;
+            font-size: 0.75rem;
             font-weight: 600;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.2s;
-            text-decoration: none;
+            gap: 6px;
         }
-        .btn-gpt { background: #10a37f; color: white; }
-        .btn-gemini { background: #1a73e8; color: white; }
-        .btn-save { background: #34a853; color: white; margin-top: 15px; font-size: 1rem; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #10B981;
+            border-radius: 50%;
+        }
+
+        /* Editor Area */
+        .editor-container {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
         textarea {
             flex: 1;
-            width: 100%;
-            padding: 20px;
-            border: 2px solid #f0f2f5;
-            border-radius: 12px;
-            font-size: 16px;
-            line-height: 1.6;
+            padding: 24px;
+            border: none;
             resize: none;
             outline: none;
-            background: #fafafa;
-            color: #333;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #374151;
+            background: transparent;
         }
-        textarea:focus { border-color: #1a73e8; background: #fff; }
-        
-        .status-msg {
-            font-size: 13px;
-            color: #666;
-            text-align: center;
-            margin-top: 10px;
+
+        .editor-footer {
+            padding: 16px 24px;
+            background: #FAFBFC;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .instruction-card {
-            background: #e8f0fe;
-            padding: 15px;
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-primary svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        #notification {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        /* Popup fix */
+        .instruction-box {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            padding: 16px;
             border-radius: 10px;
-            font-size: 14px;
-            color: #1967d2;
-            line-height: 1.4;
+            font-size: 0.85rem;
+            color: #475569;
+            margin-bottom: 24px;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
 
-    <div id="app-container">
-        <div id="header">
-            <div class="logo-area">
-                <span class="logo-icon">💝</span>
-                <span class="title">AI Knowledge Hub - For My Wife</span>
-            </div>
-            <div id="save-indicator" style="color: #34a853; font-weight: 600; font-size: 14px;"></div>
+    <aside>
+        <div class="brand">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+            KNOWLEDGE HUB
         </div>
 
-        <div id="main-content">
-            <div id="chat-sidebar">
-                <div class="instruction-card">
-                    <b>Hướng dẫn:</b><br>
-                    1. <b>Chọn thư mục</b> lưu file trên máy Vợ.<br>
-                    2. Mở Chat và copy kiến thức.<br>
-                    3. Dán vào khung và nhấn <b>Lưu file mới</b>.<br>
-                    4. File sẽ tự đặt tên kienthuc_1, 2...
-                </div>
-                
-                <button class="btn" style="background: #f39c12; color: white;" onclick="selectFolder()">
-                    <span>📁</span> 1. Chọn thư mục lưu
-                </button>
+        <div class="nav-group">
+            <span class="nav-label">Cấu hình</span>
+            <button class="btn-nav" onclick="selectFolder()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+                Chọn thư mục lưu
+            </button>
+        </div>
 
-                <button class="btn btn-gpt" onclick="openChat('https://chatgpt.com')">
-                    <span>💬</span> 2. Mở ChatGPT
-                </button>
-                <button class="btn btn-gemini" onclick="openChat('https://gemini.google.com')">
-                    <span>✨</span> 3. Mở Gemini
-                </button>
+        <div class="nav-group">
+            <span class="nav-label">Trò chuyện</span>
+            <button class="btn-nav" onclick="openChat('https://chatgpt.com')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Mở ChatGPT
+            </button>
+            <button class="btn-nav" onclick="openChat('https://gemini.google.com')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                Mở Gemini
+            </button>
+        </div>
 
-                <button class="btn" style="background: #9b59b6; color: white;" onclick="copyKnowledgeForAI()">
-                    <span>🧠</span> 4. Nhắc bài cho AI
-                </button>
-                
-                <div id="folder-status" style="font-size: 11px; color: #e67e22; text-align: center;">Chưa chọn thư mục lưu</div>
+        <div class="nav-group">
+            <span class="nav-label">Công cụ</span>
+            <button class="btn-nav" onclick="copyKnowledgeForAI()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.54Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.54Z"/></svg>
+                Nhắc bài cho AI
+            </button>
+        </div>
 
-                <div style="margin-top: auto; font-size: 12px; color: #999; text-align: center;">
-                    Dữ liệu lưu tại máy cá nhân của Vợ
-                </div>
+        <div id="folder-info" style="margin-top: auto; font-size: 0.75rem; color: var(--text-sub);">
+            Thư mục: Chưa chọn
+        </div>
+    </aside>
+
+    <main>
+        <header>
+            <div class="header-info">
+                <h1>Ghi chú kiến thức</h1>
+                <p>Mọi thay đổi đều được tự động lưu nháp tại máy.</p>
             </div>
+            <div class="status-pill">
+                <div class="status-dot"></div>
+                Sẵn sàng
+            </div>
+        </header>
 
-            <div id="note-area-container">
-                <textarea id="note-area" placeholder="Dán kiến thức quan trọng vào đây để lưu lại..."></textarea>
-                <button class="btn btn-save" onclick="saveAsNewFile()">
-                    🚀 4. LƯU THÀNH FILE KIẾN THỨC MỚI
+        <div class="editor-container">
+            <textarea id="note-area" placeholder="Bắt đầu ghi lại những kiến thức quan trọng..."></textarea>
+            <div class="editor-footer">
+                <div id="notification">Đã lưu file thành công!</div>
+                <button class="btn-primary" onclick="saveAsNewFile()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Lưu file mới
                 </button>
-                <div class="status-msg" id="last-saved"></div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script>
         const noteArea = document.getElementById('note-area');
-        const saveIndicator = document.getElementById('save-indicator');
-        const lastSaved = document.getElementById('last-saved');
-        const folderStatus = document.getElementById('folder-status');
-
+        const notification = document.getElementById('notification');
+        const folderInfo = document.getElementById('folder-info');
         let directoryHandle = null;
 
-        // Load data nháp
+        // Load data
         window.onload = () => {
             const savedData = localStorage.getItem('wife_ai_knowledge');
-            if (savedData) {
-                noteArea.value = savedData;
-            }
+            if (savedData) noteArea.value = savedData;
         };
 
-        // Chọn thư mục lưu trực tiếp
+        // Select Folder
         async function selectFolder() {
             try {
                 directoryHandle = await window.showDirectoryPicker();
-                folderStatus.innerText = "📁 Đã kết nối thư mục: " + directoryHandle.name;
-                folderStatus.style.color = "#27ae60";
+                folderInfo.innerText = "Thư mục: " + directoryHandle.name;
             } catch (err) {
                 console.error(err);
-                alert("Vợ cần chọn thư mục để tính năng lưu tự động hoạt động nhé!");
             }
         }
 
-        // Lưu file mới với số thứ tự tăng dần
+        // Save new file
         async function saveAsNewFile() {
             const content = noteArea.value;
-            if (!content) {
-                alert("Vợ chưa nhập kiến thức nào cả!");
-                return;
-            }
-
-            if (!directoryHandle) {
-                alert("Vợ ơi, hãy nhấn nút 'Chọn thư mục lưu' trước đã nhé!");
+            if (!content || !directoryHandle) {
+                alert(!directoryHandle ? "Vui lòng chọn thư mục lưu trước." : "Nội dung trống.");
                 return;
             }
 
             try {
-                // Tìm số thứ tự tiếp theo
-                let index = 1;
-                let fileName = `kienthuc_${index}.md`;
-                
-                // Kiểm tra xem file đã tồn tại chưa để tăng index
-                // Lưu ý: Browser API không cho list file dễ dàng, nên ta sẽ lưu index vào localStorage
                 let lastIndex = parseInt(localStorage.getItem('last_file_index') || '0');
-                index = lastIndex + 1;
-                fileName = `kienthuc_${index}.md`;
+                let index = lastIndex + 1;
+                let fileName = `kienthuc_${index}.md`;
 
                 const fileHandle = await directoryHandle.getFileHandle(fileName, { create: true });
                 const writable = await fileHandle.createWritable();
@@ -220,33 +332,39 @@
                 await writable.close();
 
                 localStorage.setItem('last_file_index', index);
-                
-                lastSaved.innerText = `Đã lưu thành công file: ${fileName}`;
-                // Xóa khung sau khi lưu để vợ nhập cái mới
-                // noteArea.value = ""; 
-                // localStorage.setItem('wife_ai_knowledge', "");
-                
-                setTimeout(() => { lastSaved.innerText = ""; }, 5000);
+                showNotification(`Đã lưu ${fileName}`);
             } catch (err) {
-                console.error(err);
-                alert("Lỗi khi lưu file: " + err.message);
+                alert("Lỗi: " + err.message);
             }
         }
 
-        // Auto save nháp trên trình duyệt
-        noteArea.oninput = () => {
-            localStorage.setItem('wife_ai_knowledge', noteArea.value);
-            saveIndicator.innerText = "Đã lưu nháp...";
-            setTimeout(() => { saveIndicator.innerText = ""; }, 2000);
-        };
+        // Copy for AI
+        function copyKnowledgeForAI() {
+            const content = noteArea.value;
+            if (!content) return;
+            const prompt = `Dưới đây là kiến thức tôi đã lưu, hãy đọc và ghi nhớ để trả lời các câu hỏi tiếp theo của tôi:\n\n---\n${content}\n---`;
+            navigator.clipboard.writeText(prompt);
+            showNotification("Đã copy lệnh nhắc bài!");
+        }
+
+        // Helper
+        function showNotification(msg) {
+            notification.innerText = msg;
+            notification.style.opacity = '1';
+            setTimeout(() => notification.style.opacity = '0', 3000);
+        }
 
         function openChat(url) {
-            const width = 800;
-            const height = 700;
-            const left = (screen.width - width) / 4;
+            const width = 1000, height = 800;
+            const left = (screen.width - width) / 2;
             const top = (screen.height - height) / 2;
-            window.open(url, 'AIChatWindow', `width=${width},height=${height},top=${top},left=${left},menubar=no,toolbar=no,location=no,status=no`);
+            window.open(url, '_blank', `width=${width},height=${height},top=${top},left=${left}`);
         }
+
+        // Auto save draft
+        noteArea.oninput = () => {
+            localStorage.setItem('wife_ai_knowledge', noteArea.value);
+        };
     </script>
 </body>
 </html>
