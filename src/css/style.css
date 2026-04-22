@@ -103,13 +103,34 @@ header { padding-right: 150px; margin-bottom: 20px; }
 #preview-area, #law-area { display: none; }
 #preview-area img { max-width: 100%; }
 
-/* Law Hub Styles */
-.law-card { background: rgba(0,0,0,0.02); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
-.law-tag { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; margin-right: 8px; }
-.tag-new { background: #D1FAE5; color: #065F46; }
-.tag-effect { background: #FEF3C7; color: #92400E; }
-.law-title { font-weight: 600; font-size: 0.95rem; display: block; margin-top: 8px; }
-.law-meta { font-size: 0.8rem; color: var(--text-sub); margin-top: 4px; display: flex; gap: 15px; }
+/* Law Hub 3-Column Layout */
+.law-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    height: 100%;
+}
+.law-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: rgba(0,0,0,0.01);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    overflow-y: auto;
+}
+.law-column h3 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    color: var(--text-sub);
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary);
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 
 .editor-footer { padding: 12px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
 .btn-primary { background: var(--primary); color: white; padding: 10px 24px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }

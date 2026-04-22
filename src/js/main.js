@@ -20,6 +20,21 @@ function switchTab(mode) {
         const btn = document.getElementById('tab-' + t);
         if(btn) btn.classList.toggle('active', t === mode);
     });
+
+    // Tự động ẩn/hiện ô soạn thảo và footer dựa trên tab
+    const noteArea = document.getElementById('note-area');
+    const footer = document.querySelector('.editor-footer');
+    
+    if (mode === 'law') {
+        if(noteArea) noteArea.style.display = 'none';
+        if(footer) footer.style.display = 'none';
+    } else if (mode === 'edit') {
+        if(noteArea) noteArea.style.display = 'block';
+        if(footer) footer.style.display = 'flex';
+    } else {
+        if(noteArea) noteArea.style.display = 'none';
+        if(footer) footer.style.display = 'flex';
+    }
     
     if(mode === 'preview') {
         const content = document.getElementById('note-area').value;
@@ -35,7 +50,7 @@ function switchTab(mode) {
 async function fetchLegalDocs() {
     const listEl = document.getElementById('law-list');
     if (!listEl) return;
-    listEl.innerHTML = "<div style='text-align:center; padding:20px;'>🔍 Đang quét radar văn bản pháp luật...</div>";
+    listEl.innerHTML = "<div style='text-align:center; padding:20px; grid-column: span 3;'>🔍 Đang quét radar văn bản pháp luật...</div>";
     
     const apiURL = 'https://vbpl-bientap-gateway.moj.gov.vn/api/qtdc/public/doc/all';
     
@@ -51,78 +66,60 @@ async function fetchLegalDocs() {
     };
 
     try {
-        // Gọi đồng thời 3 trạng thái quan trọng nhất
         const [latest, comingSoon, expiringSoon] = await Promise.all([
-            fetchType({ pageSize: 5, pageIndex: 0, sortDirection: "desc", sortBy: "issueDate" }),
-            fetchType({ pageSize: 5, pageNumber: 1, sortDirection: "desc", sortBy: "issueDate", comingSoon: true }),
-            fetchType({ pageSize: 5, pageNumber: 1, sortDirection: "desc", sortBy: "issueDate", expiringSoon: true })
+            fetchType({ pageSize: 10, pageIndex: 0, sortDirection: "desc", sortBy: "issueDate" }),
+            fetchType({ pageSize: 10, pageNumber: 1, sortDirection: "desc", sortBy: "issueDate", comingSoon: true }),
+            fetchType({ pageSize: 10, pageNumber: 1, sortDirection: "desc", sortBy: "issueDate", expiringSoon: true })
         ]);
 
-        let allDocs = [];
-        if (latest?.data?.items) allDocs.push(...latest.data.items.map(d => ({...d, typeTag: 'NEW'})));
-        if (comingSoon?.data?.items) allDocs.push(...comingSoon.data.items.map(d => ({...d, typeTag: 'COMING'})));
-        if (expiringSoon?.data?.items) allDocs.push(...expiringSoon.data.items.map(d => ({...d, typeTag: 'EXPIRING'})));
-
-        if (allDocs.length > 0) {
-            renderLawList(allDocs);
-        } else {
-            throw new Error("CORS or Empty");
-        }
+        renderLawGrid({
+            new: latest?.data?.items || [],
+            coming: comingSoon?.data?.items || [],
+            expiring: expiringSoon?.data?.items || []
+        });
     } catch (e) {
-        // Fallback dữ liệu cực chuẩn dựa trên điều tra của bạn
-        const mockDocs = [
-            { 
-                title: "Nghị định 112/2026/NĐ-CP Về trao đổi quốc tế kết quả giảm nhẹ phát thải khí nhà kính và tín chỉ các-bon", 
-                docNum: "112/2026/NĐ-CP", 
-                issueDate: "2026-04-01", 
-                effFrom: "2026-05-19",
-                effStatus: { name: "Chưa có hiệu lực" },
-                typeTag: 'COMING' 
-            },
-            { 
-                title: "Nghị định 42/2024/NĐ-CP Quy định về hoạt động lấn biển (Mới cập nhật)", 
-                docNum: "42/2024/NĐ-CP", 
-                issueDate: "2024-04-16", 
-                effStatus: { name: "Đang có hiệu lực" },
-                typeTag: 'NEW' 
-            },
-            { 
-                title: "Văn bản sắp hết hiệu lực mẫu (Cần rà soát thay thế)", 
-                docNum: "01/2020/NĐ-CP", 
-                issueDate: "2020-01-01", 
-                effStatus: { name: "Sắp hết hiệu lực" },
-                typeTag: 'EXPIRING' 
-            }
-        ];
-        renderLawList(mockDocs);
+        // Fallback mock data
+        const mockData = {
+            new: [{ title: "Nghị định 42/2024/NĐ-CP Hoạt động lấn biển", docNum: "42/2024/NĐ-CP", issueDate: "2024-04-16", effStatus: {name: "Đang hiệu lực"} }],
+            coming: [{ title: "Nghị định 112/2026/NĐ-CP Tín chỉ carbon", docNum: "112/2026/NĐ-CP", issueDate: "2026-04-01", effFrom: "2026-05-19", effStatus: {name: "Chưa hiệu lực"} }],
+            expiring: [{ title: "Văn bản sắp hết hiệu lực mẫu", docNum: "01/2020/NĐ-CP", issueDate: "2020-01-01", effStatus: {name: "Sắp hết hạn"} }]
+        };
+        renderLawGrid(mockData);
     }
 }
 
-function renderLawList(items) {
+function renderLawGrid(data) {
     const listEl = document.getElementById('law-list');
     if (!listEl) return;
-    
-    const getTagHTML = (tag) => {
-        switch(tag) {
-            case 'NEW': return '<span class="law-tag tag-new">Mới</span>';
-            case 'COMING': return '<span class="law-tag" style="background:#FFEDD5; color:#9A3412;">Sắp hiệu lực</span>';
-            case 'EXPIRING': return '<span class="law-tag" style="background:#FEE2E2; color:#991B1B;">Sắp hết hiệu lực</span>';
-            default: return '';
-        }
-    };
 
-    listEl.innerHTML = items.map(item => `
-        <div class="law-card">
-            ${getTagHTML(item.typeTag)}
+    const createCards = (items, color) => items.map(item => `
+        <div class="law-card" style="border-left: 4px solid ${color};">
             <span class="law-title">${item.title}</span>
             <div class="law-meta">
                 <span>📄 ${item.docNum}</span>
-                <span>📅 Ban hành: ${new Date(item.issueDate).toLocaleDateString('vi-VN')}</span>
-                <span style="color:var(--primary)">⚡ ${item.effStatus?.name || 'N/A'}</span>
+                <span>📅 ${new Date(item.issueDate).toLocaleDateString('vi-VN')}</span>
             </div>
-            ${item.effFrom ? `<div style="font-size:0.75rem; color:#6B7280; margin-top:5px;">🚀 Có hiệu lực từ: ${new Date(item.effFrom).toLocaleDateString('vi-VN')}</div>` : ''}
+            <div style="font-size:0.75rem; color:var(--primary); margin-top:5px; font-weight:600;">⚡ ${item.effStatus?.name || ''}</div>
+            ${item.effFrom ? `<div style="font-size:0.7rem; color:#6B7280;">🚀 Hiệu lực: ${new Date(item.effFrom).toLocaleDateString('vi-VN')}</div>` : ''}
         </div>
     `).join('');
+
+    listEl.innerHTML = `
+        <div class="law-grid">
+            <div class="law-column">
+                <h3>🆕 Mới ban hành</h3>
+                ${data.new.length ? createCards(data.new, '#4F46E5') : '<p style="font-size:0.8rem; color:gray;">Không có dữ liệu</p>'}
+            </div>
+            <div class="law-column">
+                <h3>⏳ Sắp có hiệu lực</h3>
+                ${data.coming.length ? createCards(data.coming, '#F59E0B') : '<p style="font-size:0.8rem; color:gray;">Không có dữ liệu</p>'}
+            </div>
+            <div class="law-column">
+                <h3>⚠️ Sắp hết hiệu lực</h3>
+                ${data.expiring.length ? createCards(data.expiring, '#EF4444') : '<p style="font-size:0.8rem; color:gray;">Không có dữ liệu</p>'}
+            </div>
+        </div>
+    `;
 }
 
 // Todo Management
