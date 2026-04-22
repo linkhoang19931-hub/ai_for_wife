@@ -27,7 +27,6 @@ body {
     height: 100vh;
     display: flex;
     overflow: hidden;
-    transition: all 0.3s;
 }
 
 /* Sidebar */
@@ -38,8 +37,8 @@ aside {
     display: flex;
     flex-direction: column;
     padding: 20px;
-    z-index: 10;
-    flex-shrink: 0; /* Đảm bảo sidebar không bị co lại */
+    z-index: 50;
+    flex-shrink: 0;
 }
 
 body.focus-mode aside { display: none; }
@@ -55,7 +54,6 @@ body.focus-mode main { max-width: 900px; margin: 0 auto; padding-top: 40px; }
     display: flex; align-items: center; gap: 10px; margin-bottom: 2px; transition: all 0.2s;
 }
 .btn-nav:hover { background: rgba(79, 70, 229, 0.1); color: var(--primary); }
-.btn-nav svg { width: 18px; height: 18px; stroke-width: 2; }
 
 main { 
     flex: 1; 
@@ -64,49 +62,37 @@ main {
     padding: 24px; 
     position: relative; 
     overflow: hidden; 
-    min-width: 0; /* Quan trọng để flex child không bị tràn */
 }
 
-/* Cat Clock Container Fix */
+/* Cat Clock - Ultra Smooth Drag */
 .cat-clock-pos {
-    position: absolute; 
+    position: fixed; /* Chuyển sang fixed để không bị main padding ảnh hưởng */
     top: 20px; 
     right: 20px; 
     width: 120px; 
     height: 160px; 
-    z-index: 1000;
-    display: flex; 
-    justify-content: flex-end; 
-    align-items: flex-start;
+    z-index: 9999;
     pointer-events: auto;
     cursor: grab;
     user-select: none;
-    touch-action: none; /* Tối ưu cho cảm ứng */
+    touch-action: none;
 }
 .cat-clock-pos:active { cursor: grabbing; }
-.clock-scale-wrapper { transform: scale(0.35); transform-origin: top right; margin-top: 140px; }
-
-/* Debug Log Area */
-.debug-log {
-    margin-top: 20px;
-    padding: 10px;
-    background: #1F2937;
-    color: #10B981;
-    font-family: monospace;
-    font-size: 0.7rem;
-    border-radius: 8px;
-    max-height: 150px;
-    overflow-y: auto;
-    display: none; /* Ẩn mặc định, hiện khi có lỗi hoặc debug */
-    grid-column: span 3;
-}
-.debug-log.active { display: block; }
-.debug-line { margin-bottom: 4px; border-bottom: 1px solid #374151; padding-bottom: 2px; }
-.debug-err { color: #EF4444; }
+.clock-scale-wrapper { transform: scale(0.35); transform-origin: top right; margin-top: 140px; pointer-events: none; }
 
 header { padding-right: 150px; margin-bottom: 20px; }
-.editor-header { display: flex; gap: 8px; }
-.tab-btn { padding: 10px 20px; border: 1px solid var(--border); border-bottom: none; background: rgba(0,0,0,0.03); border-radius: 10px 10px 0 0; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--text-sub); }
+.editor-header { display: flex; gap: 8px; position: relative; z-index: 60; }
+.tab-btn { 
+    padding: 10px 20px; 
+    border: 1px solid var(--border); 
+    border-bottom: none; 
+    background: rgba(0,0,0,0.03); 
+    border-radius: 10px 10px 0 0; 
+    cursor: pointer; 
+    font-size: 0.85rem; 
+    font-weight: 600; 
+    color: var(--text-sub); 
+}
 .tab-btn.active { background: var(--bg-card); border-bottom: 1px solid var(--bg-card); color: var(--primary); }
 
 .editor-container { 
@@ -118,6 +104,8 @@ header { padding-right: 150px; margin-bottom: 20px; }
     flex-direction: column; 
     overflow: hidden; 
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+    position: relative;
+    z-index: 55;
 }
 
 #note-area, #preview-area, #law-area { 
@@ -127,38 +115,31 @@ header { padding-right: 150px; margin-bottom: 20px; }
     line-height: 1.6; 
     overflow-y: auto; 
     outline: none; 
-    color: var(--text-main); 
 }
 #preview-area, #law-area { display: none; }
-#preview-area img { max-width: 100%; }
 
-/* Law Hub 3-Column Layout */
-.law-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    height: 100%;
+/* Law Grid */
+.law-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; height: 100%; min-height: 0; }
+.law-column { 
+    display: flex; flex-direction: column; gap: 10px; 
+    background: rgba(0,0,0,0.02); padding: 12px; border-radius: 12px; 
+    border: 1px solid var(--border); overflow-y: auto;
 }
-.law-column {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background: rgba(0,0,0,0.01);
-    padding: 15px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    overflow-y: auto;
+.law-column h3 { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 5px; text-transform: uppercase; border-bottom: 2px solid var(--primary); padding-bottom: 5px; }
+
+.law-card { 
+    background: var(--bg-card); border: 1px solid var(--border); 
+    border-radius: 8px; padding: 10px; 
+    transition: transform 0.2s; cursor: pointer;
 }
-.law-column h3 {
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    color: var(--text-sub);
-    padding-bottom: 10px;
-    border-bottom: 2px solid var(--primary);
-    margin-bottom: 5px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.law-card:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.law-title { font-size: 0.8rem; font-weight: 600; line-height: 1.3; display: block; margin-bottom: 5px; }
+.law-meta { font-size: 0.7rem; color: var(--text-sub); }
+
+.debug-log { 
+    margin-top: 10px; padding: 8px; background: #000; color: #0f0; 
+    font-family: monospace; font-size: 0.65rem; border-radius: 4px; 
+    max-height: 80px; overflow-y: auto; grid-column: span 3;
 }
 
 .editor-footer { padding: 12px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
@@ -167,7 +148,3 @@ header { padding-right: 150px; margin-bottom: 20px; }
 .todo-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
 .todo-item.done span { text-decoration: line-through; color: var(--text-sub); }
 .btn-delete { background: none; border: none; color: #EF4444; cursor: pointer; font-size: 0.7rem; padding: 4px; opacity: 0.5; }
-.btn-delete:hover { opacity: 1; }
-
-#exit-focus { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: none; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-body.focus-mode #exit-focus { display: block; }
