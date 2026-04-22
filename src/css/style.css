@@ -74,15 +74,35 @@ main {
     right: 20px; 
     width: 120px; 
     height: 160px; 
-    z-index: 1000; /* Tăng z-index để luôn nổi lên trên */
+    z-index: 1000;
     display: flex; 
     justify-content: flex-end; 
     align-items: flex-start;
-    pointer-events: auto; /* Cho phép click */
-    cursor: move; /* Biểu tượng kéo */
-    user-select: none; /* Tránh bôi đen text khi kéo */
+    pointer-events: auto;
+    cursor: grab;
+    user-select: none;
+    touch-action: none; /* Tối ưu cho cảm ứng */
 }
+.cat-clock-pos:active { cursor: grabbing; }
 .clock-scale-wrapper { transform: scale(0.35); transform-origin: top right; margin-top: 140px; }
+
+/* Debug Log Area */
+.debug-log {
+    margin-top: 20px;
+    padding: 10px;
+    background: #1F2937;
+    color: #10B981;
+    font-family: monospace;
+    font-size: 0.7rem;
+    border-radius: 8px;
+    max-height: 150px;
+    overflow-y: auto;
+    display: none; /* Ẩn mặc định, hiện khi có lỗi hoặc debug */
+    grid-column: span 3;
+}
+.debug-log.active { display: block; }
+.debug-line { margin-bottom: 4px; border-bottom: 1px solid #374151; padding-bottom: 2px; }
+.debug-err { color: #EF4444; }
 
 header { padding-right: 150px; margin-bottom: 20px; }
 .editor-header { display: flex; gap: 8px; }
