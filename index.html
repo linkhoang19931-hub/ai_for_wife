@@ -124,19 +124,25 @@
             <div id="chat-sidebar">
                 <div class="instruction-card">
                     <b>Hướng dẫn:</b><br>
-                    1. Bấm nút mở Chat bên dưới.<br>
-                    2. Copy câu trả lời của AI.<br>
-                    3. Dán vào khung ghi chú bên cạnh.<br>
-                    4. Dữ liệu sẽ tự động lưu!
+                    1. <b>Chọn thư mục</b> lưu file trên máy Vợ.<br>
+                    2. Mở Chat và copy kiến thức.<br>
+                    3. Dán vào khung và nhấn <b>Lưu file mới</b>.<br>
+                    4. File sẽ tự đặt tên kienthuc_1, 2...
                 </div>
                 
+                <button class="btn" style="background: #f39c12; color: white;" onclick="selectFolder()">
+                    <span>📁</span> 1. Chọn thư mục lưu
+                </button>
+
                 <button class="btn btn-gpt" onclick="openChat('https://chatgpt.com')">
-                    <span>💬</span> Mở ChatGPT
+                    <span>💬</span> 2. Mở ChatGPT
                 </button>
                 <button class="btn btn-gemini" onclick="openChat('https://gemini.google.com')">
-                    <span>✨</span> Mở Gemini
+                    <span>✨</span> 3. Mở Gemini
                 </button>
                 
+                <div id="folder-status" style="font-size: 11px; color: #e67e22; text-align: center;">Chưa chọn thư mục lưu</div>
+
                 <div style="margin-top: auto; font-size: 12px; color: #999; text-align: center;">
                     Dữ liệu lưu tại máy cá nhân của Vợ
                 </div>
@@ -144,8 +150,8 @@
 
             <div id="note-area-container">
                 <textarea id="note-area" placeholder="Dán kiến thức quan trọng vào đây để lưu lại..."></textarea>
-                <button class="btn btn-save" onclick="saveToFile()">
-                    💾 XUẤT RA FILE .MD (ĐỂ GỬI HOẶC LƯU TRỮ)
+                <button class="btn btn-save" onclick="saveAsNewFile()">
+                    🚀 4. LƯU THÀNH FILE KIẾN THỨC MỚI
                 </button>
                 <div class="status-msg" id="last-saved"></div>
             </div>
@@ -156,8 +162,11 @@
         const noteArea = document.getElementById('note-area');
         const saveIndicator = document.getElementById('save-indicator');
         const lastSaved = document.getElementById('last-saved');
+        const folderStatus = document.getElementById('folder-status');
 
-        // Load data
+        let directoryHandle = null;
+
+        // Load data nháp
         window.onload = () => {
             const savedData = localStorage.getItem('wife_ai_knowledge');
             if (savedData) {
@@ -165,43 +174,74 @@
             }
         };
 
-        // Auto save on type
+        // Chọn thư mục lưu trực tiếp
+        async function selectFolder() {
+            try {
+                directoryHandle = await window.showDirectoryPicker();
+                folderStatus.innerText = "📁 Đã kết nối thư mục: " + directoryHandle.name;
+                folderStatus.style.color = "#27ae60";
+            } catch (err) {
+                console.error(err);
+                alert("Vợ cần chọn thư mục để tính năng lưu tự động hoạt động nhé!");
+            }
+        }
+
+        // Lưu file mới với số thứ tự tăng dần
+        async function saveAsNewFile() {
+            const content = noteArea.value;
+            if (!content) {
+                alert("Vợ chưa nhập kiến thức nào cả!");
+                return;
+            }
+
+            if (!directoryHandle) {
+                alert("Vợ ơi, hãy nhấn nút 'Chọn thư mục lưu' trước đã nhé!");
+                return;
+            }
+
+            try {
+                // Tìm số thứ tự tiếp theo
+                let index = 1;
+                let fileName = `kienthuc_${index}.md`;
+                
+                // Kiểm tra xem file đã tồn tại chưa để tăng index
+                // Lưu ý: Browser API không cho list file dễ dàng, nên ta sẽ lưu index vào localStorage
+                let lastIndex = parseInt(localStorage.getItem('last_file_index') || '0');
+                index = lastIndex + 1;
+                fileName = `kienthuc_${index}.md`;
+
+                const fileHandle = await directoryHandle.getFileHandle(fileName, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(content);
+                await writable.close();
+
+                localStorage.setItem('last_file_index', index);
+                
+                lastSaved.innerText = `Đã lưu thành công file: ${fileName}`;
+                // Xóa khung sau khi lưu để vợ nhập cái mới
+                // noteArea.value = ""; 
+                // localStorage.setItem('wife_ai_knowledge', "");
+                
+                setTimeout(() => { lastSaved.innerText = ""; }, 5000);
+            } catch (err) {
+                console.error(err);
+                alert("Lỗi khi lưu file: " + err.message);
+            }
+        }
+
+        // Auto save nháp trên trình duyệt
         noteArea.oninput = () => {
             localStorage.setItem('wife_ai_knowledge', noteArea.value);
-            saveIndicator.innerText = "Đã tự động lưu nháp...";
+            saveIndicator.innerText = "Đã lưu nháp...";
             setTimeout(() => { saveIndicator.innerText = ""; }, 2000);
         };
 
         function openChat(url) {
-            // Mở cửa sổ chat ở một cửa sổ popup riêng biệt giúp vợ dễ nhìn
             const width = 800;
             const height = 700;
             const left = (screen.width - width) / 4;
             const top = (screen.height - height) / 2;
             window.open(url, 'AIChatWindow', `width=${width},height=${height},top=${top},left=${left},menubar=no,toolbar=no,location=no,status=no`);
-        }
-
-        function saveToFile() {
-            const content = noteArea.value;
-            if (!content) {
-                alert("Vợ chưa nhập kiến thức nào để lưu cả!");
-                return;
-            }
-            
-            const blob = new Blob([content], { type: 'text/markdown' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            const date = new Date().toLocaleDateString('vi-VN').replaceAll('/', '-');
-            
-            a.href = url;
-            a.download = `kien-thuc-ai-${date}.md`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            lastSaved.innerText = "Đã tải file .md thành công!";
-            setTimeout(() => { lastSaved.innerText = ""; }, 4000);
         }
     </script>
 </body>
