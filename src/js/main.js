@@ -28,6 +28,8 @@ function logDebug(msg, isError = false) {
 // --- TAB SYSTEM ---
 function switchTab(mode) {
     const tabs = ['edit', 'preview', 'law'];
+    const noteArea = document.getElementById('note-area');
+
     tabs.forEach(t => {
         const area = document.getElementById(t + '-area');
         const btn = document.getElementById('tab-' + t);
@@ -35,11 +37,15 @@ function switchTab(mode) {
         if (btn) btn.classList.toggle('active', t === mode);
     });
 
+    // Tự động ẩn textarea soạn thảo khi sang tab khác
+    if (noteArea) {
+        noteArea.style.display = (mode === 'edit') ? 'block' : 'none';
+    }
+
     if (mode === 'law') fetchLegalDocs();
     if (mode === 'preview') {
         const previewArea = document.getElementById('preview-area');
-        const noteArea = document.getElementById('note-area');
-        if (typeof marked !== 'undefined' && previewArea) {
+        if (typeof marked !== 'undefined' && previewArea && noteArea) {
             previewArea.innerHTML = marked.parse(noteArea.value || '');
         }
     }
