@@ -1,10 +1,10 @@
-/* Cat Mascot - New White Pixel Cat Version */
+/* Cat Mascot - New Grey Tabby Pixel Cat (3x3 Sprite) */
 .cat-clock-pos {
     position: fixed;
     top: 20px;
     right: 20px;
-    width: 180px; /* Cân chỉnh lại kích thước phù hợp với nhân vật mới */
-    height: 180px;
+    width: 150px; /* Cân chỉnh lại kích thước cho tinh tế */
+    height: 150px;
     z-index: 9999;
     cursor: grab;
     user-select: none;
@@ -17,27 +17,38 @@
 .cat-clock-pos:active { cursor: grabbing; }
 
 .pixel-cat {
-    width: 180px;
-    height: 180px;
-    /* Đường dẫn đến file ảnh mới bạn vừa gen */
-    background-image: url('../../pixellab-------A-pixel-art-character-sp-1777431412659.png');
-    background-size: 360px 360px; /* Ảnh 2x2 nên size container = 1/2 size ảnh thực */
+    width: 150px;
+    height: 150px;
+    background-image: url('../../pixellab-----A-high-quality-32-bit-pixe-1777432114956.png');
+    background-size: 450px 450px; /* 3x3 grid nên size = 3 lần container */
     background-repeat: no-repeat;
-    image-rendering: pixelated; /* Giữ độ sắc nét tuyệt đối cho pixel art */
+    image-rendering: pixelated;
     position: relative;
-    animation: cat-mascot-multi-anim 12s steps(1) infinite;
+    animation: grey-cat-life-cycle 20s steps(1) infinite;
 }
 
 /* 
-Hoạt ảnh đa biểu cảm:
-Frame 1 (0 0): Nhìn thẳng
-Frame 2 (-180px 0): Nhìn dữ dằn (Intense)
-Frame 3 (0 -180px): Quay lưng (Back view)
-Frame 4 (-180px -180px): Chớp mắt (Blink)
+Hệ thống tọa độ 3x3 (mỗi bước 150px):
+Hàng 1: [0,0] Idle | [-150,0] Wink/Play | [-300,0] Happy
+Hàng 2: [0,-150] Sleep | [-150,-150] Look Side | [-300,-150] Surprised/Play
+Hàng 3: [0,-300] Look Left | [-150,-300] Intense | [-300,-300] Side Wink
 */
-@keyframes cat-mascot-multi-anim {
-    0%, 35%, 60%, 85%, 100% { background-position: 0 0; } /* Idle */
-    37%, 40% { background-position: -180px -180px; }      /* Blink */
-    62%, 65% { background-position: -180px 0; }          /* Angry/Intense */
-    87%, 92% { background-position: 0 -180px; }           /* Turn around (Dỗi) */
+
+@keyframes grey-cat-life-cycle {
+    /* --- Giai đoạn 1: Ngồi yên & Chớp mắt (0-30%) --- */
+    0%, 10%, 20%, 28% { background-position: 0 0; }        /* Idle */
+    12%, 22% { background-position: 0 -150px; }            /* Blink (Dùng frame nhắm mắt) */
+    
+    /* --- Giai đoạn 2: Nghịch ngợm (30-50%) --- */
+    30%, 40% { background-position: -150px 0; }            /* Paw up */
+    35%, 45% { background-position: -300px -150px; }       /* Surprised play */
+    
+    /* --- Giai đoạn 3: Đi ngủ (50-80%) --- */
+    50%, 75% { background-position: 0 -150px; }            /* Deep Sleep */
+    76%, 79% { background-position: -150px -150px; }       /* Wake up stretch */
+
+    /* --- Giai đoạn 4: Vui vẻ & Cảm xúc (80-100%) --- */
+    80%, 90% { background-position: -300px 0; }            /* Super Happy */
+    85%, 95% { background-position: -150px -300px; }       /* Intense focus */
+    98% { background-position: -300px -300px; }            /* Cute wink */
 }
