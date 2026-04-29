@@ -1,4 +1,4 @@
-// Lawyer Intelligence Hub Pro - "Stealth Radar 5.0" (Satellite Engine)
+// Lawyer Intelligence Hub Pro - "Stealth Radar 5.1" (Official Document Filter)
 let todos = JSON.parse(localStorage.getItem('wife_todos') || '[]');
 let directoryHandle = null;
 let lastLawData = JSON.parse(localStorage.getItem('cached_law_data') || 'null');
@@ -80,38 +80,47 @@ function initDraggableClock() {
     });
 }
 
-// --- RADAR 5.0 (Satellite Google News Feed) ---
+// --- RADAR 5.1 (Refined Legal Satellite) ---
 async function fetchLegalDocs() {
     const listEl = document.getElementById('law-list');
     if (!listEl) return;
-    logDebug("📡 Kích hoạt Radar Vệ tinh (Google News Hub)...");
+    logDebug("📡 Radar 5.1: Đang lọc nhiễu văn bản chính thống...");
 
-    // Thay vì gọi trực tiếp TVPL (bị chặn), ta gọi Google News quét TVPL và các nguồn luật
+    // Truy vấn tập trung vào các trang văn bản gốc, tránh trang tin tức
     const queries = {
-        vanban: 'site:thuvienphapluat.vn "văn bản mới"',
-        duthao: 'site:thuvienphapluat.vn "dự thảo"',
-        congvan: 'site:thuvienphapluat.vn "công văn"'
+        vanban: 'site:thuvienphapluat.vn/van-ban/ "Nghị định" OR "Thông tư" OR "Luật" OR "Quyết định" 2026',
+        duthao: 'site:thuvienphapluat.vn/van-ban/ "Dự thảo" 2026',
+        congvan: 'site:thuvienphapluat.vn/van-ban/ "Công văn" 2026'
     };
 
     const fetchSatellite = async (name, query) => {
         try {
             logDebug(`[${name}] Đang quét vệ tinh...`);
-            // Sử dụng RSS2JSON nhưng quét qua Google News RSS (Cực kỳ khó bị chặn)
             const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=vi&gl=VN&ceid=VN:vi`;
-            const proxy = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+            const proxy = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&api_key=h8m97f7jqqe6z167pxtk6v2v6v9v6v9v`; // Dùng key mặc định nếu có
             
             const response = await fetch(proxy);
             const data = await response.json();
             
             if (data.status === 'ok') {
-                logDebug(`[${name}] Đã nhận ${data.items.length} tin.`);
-                return data.items.slice(0, 6).map(it => ({
-                    title: it.title.split(' - ')[0], // Bỏ phần tên nguồn phía sau
+                // Bộ lọc Hacker: Loại bỏ các tiêu đề có chứa từ khóa nhiễu
+                const filtered = data.items.filter(it => {
+                    const t = it.title.toLowerCase();
+                    return !t.includes("danh sách") && 
+                           !t.includes("tổng hợp") && 
+                           !t.includes("hướng dẫn") && 
+                           !t.includes("bao nhiêu tiền") &&
+                           !t.includes("lịch nghỉ");
+                });
+
+                logDebug(`[${name}] Đã lấy ${filtered.length} văn bản gốc.`);
+                return filtered.slice(0, 8).map(it => ({
+                    title: it.title.split(' - ')[0],
                     link: it.link,
                     pubDate: it.pubDate
                 }));
             }
-            throw new Error("Vệ tinh bận");
+            throw new Error("Tín hiệu bận");
         } catch (e) {
             logDebug(`[${name}] Vệ tinh nhiễu: ${e.message.slice(0, 15)}`, true);
             return [];
@@ -131,7 +140,7 @@ async function fetchLegalDocs() {
             localStorage.setItem('cached_law_data', JSON.stringify(freshData));
             localStorage.setItem('last_law_fetch', Date.now().toString());
         } else {
-            throw new Error("Tín hiệu vệ tinh yếu.");
+            throw new Error("Không có tín hiệu chính thống.");
         }
     } catch (err) {
         logDebug(`⚠️ Lỗi: ${err.message}`, true);
@@ -142,18 +151,23 @@ async function fetchLegalDocs() {
 function renderLawGrid(data, isCached = false) {
     const listEl = document.getElementById('law-list');
     const createCol = (title, items, color) => {
-        const cards = items.map(item => `
-            <div class="law-card" style="border-left: 3px solid ${color}" onclick="window.open('${item.link}', '_blank')">
-                <span class="law-title">${item.title}</span>
-                <div class="law-meta">📅 ${item.pubDate ? new Date(item.pubDate).toLocaleDateString('vi-VN') : 'Mới'}</div>
-                <div style="font-size:0.6rem; color:#9CA3AF; margin-top:4px;">🌐 Click để xem chi tiết</div>
-            </div>
-        `).join('');
-        return `<div class="law-column"><h3>${title}</h3>${cards || '<p style="font-size:0.7rem; color:gray; text-align:center;">Đang chờ tín hiệu...</p>'}</div>`;
+        const cards = items.map(item => {
+            // Regex nhận diện số hiệu văn bản (Ví dụ: 12/2026/NĐ-CP)
+            const docNumMatch = item.title.match(/[0-9\/]+[A-ZĐ-]+[0-9]*/);
+            const docNum = docNumMatch ? docNumMatch[0] : "VB gốc";
+
+            return `
+                <div class="law-card" style="border-left: 3px solid ${color}" onclick="window.open('${item.link}', '_blank')">
+                    <span class="law-title">${item.title}</span>
+                    <div class="law-meta">📄 ${docNum} | 📅 ${item.pubDate ? new Date(item.pubDate).toLocaleDateString('vi-VN') : 'Mới'}</div>
+                </div>
+            `;
+        }).join('');
+        return `<div class="law-column"><h3>${title}</h3>${cards || '<p style="font-size:0.7rem; color:gray; text-align:center;">Trống</p>'}</div>`;
     };
 
     listEl.innerHTML = `
-        ${isCached ? '<div style="grid-column: span 3; background:#FEF3C7; color:#92400E; font-size:0.7rem; padding:4px; border-radius:4px; margin-bottom:10px; text-align:center;">🔔 Đang hiển thị bản tin Radar gần nhất (Dữ liệu Offline)</div>' : ''}
+        ${isCached ? '<div style="grid-column: span 3; background:#FEF3C7; color:#92400E; font-size:0.7rem; padding:4px; border-radius:4px; margin-bottom:10px; text-align:center;">🔔 Dữ liệu Radar Offline</div>' : ''}
         <div class="law-grid" style="grid-column: span 3; width: 100%;">
             ${createCol("⚖️ Văn bản mới", data.vanban || [], "#4F46E5")}
             ${createCol("📝 Dự thảo mới", data.duthao || [], "#F59E0B")}
