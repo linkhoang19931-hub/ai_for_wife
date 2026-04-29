@@ -1,10 +1,10 @@
-/* Cat Mascot - Pixel Art Version (No Clock) */
+/* Cat Mascot - New White Pixel Cat Version */
 .cat-clock-pos {
     position: fixed;
     top: 20px;
     right: 20px;
-    width: 200px;
-    height: 200px;
+    width: 180px; /* Cân chỉnh lại kích thước phù hợp với nhân vật mới */
+    height: 180px;
     z-index: 9999;
     cursor: grab;
     user-select: none;
@@ -17,20 +17,27 @@
 .cat-clock-pos:active { cursor: grabbing; }
 
 .pixel-cat {
-    width: 200px;
-    height: 200px;
-    /* Mặc định sử dụng ảnh gốc, bạn có thể thay thế file này bằng ảnh gen từ pixellab.ai */
-    background-image: url('../../a4840624-0028-495f-9122-18e192c3d551.png');
-    background-size: 400px 400px; /* Giả định sprite sheet 2x2 */
+    width: 180px;
+    height: 180px;
+    /* Đường dẫn đến file ảnh mới bạn vừa gen */
+    background-image: url('../../pixellab-------A-pixel-art-character-sp-1777431412659.png');
+    background-size: 360px 360px; /* Ảnh 2x2 nên size container = 1/2 size ảnh thực */
     background-repeat: no-repeat;
-    image-rendering: pixelated;
+    image-rendering: pixelated; /* Giữ độ sắc nét tuyệt đối cho pixel art */
     position: relative;
-    animation: cat-mascot-idle 6s steps(1) infinite;
+    animation: cat-mascot-multi-anim 12s steps(1) infinite;
 }
 
-/* Hoạt ảnh linh vật: Nghỉ -> Chớp mắt -> Nghỉ -> Vẫy đuôi */
-@keyframes cat-mascot-idle {
-    0%, 40%, 80%, 100% { background-position: 0 0; }
-    42%, 45% { background-position: -200px 0; }
-    50%, 75% { background-position: 0 -200px; }
+/* 
+Hoạt ảnh đa biểu cảm:
+Frame 1 (0 0): Nhìn thẳng
+Frame 2 (-180px 0): Nhìn dữ dằn (Intense)
+Frame 3 (0 -180px): Quay lưng (Back view)
+Frame 4 (-180px -180px): Chớp mắt (Blink)
+*/
+@keyframes cat-mascot-multi-anim {
+    0%, 35%, 60%, 85%, 100% { background-position: 0 0; } /* Idle */
+    37%, 40% { background-position: -180px -180px; }      /* Blink */
+    62%, 65% { background-position: -180px 0; }          /* Angry/Intense */
+    87%, 92% { background-position: 0 -180px; }           /* Turn around (Dỗi) */
 }
