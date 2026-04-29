@@ -1,4 +1,4 @@
-// Lawyer Intelligence Hub Pro - "Stealth Radar 4.0" Engine
+// Lawyer Intelligence Hub Pro - "Stealth Radar 5.0" (Satellite Engine)
 let todos = JSON.parse(localStorage.getItem('wife_todos') || '[]');
 let directoryHandle = null;
 let lastLawData = JSON.parse(localStorage.getItem('cached_law_data') || 'null');
@@ -31,6 +31,7 @@ function logDebug(msg, isError = false) {
 function switchTab(mode) {
     const tabs = ['edit', 'preview', 'law'];
     const noteArea = document.getElementById('note-area');
+    const footer = document.querySelector('.editor-footer');
 
     tabs.forEach(t => {
         const area = document.getElementById(t + '-area');
@@ -40,21 +41,15 @@ function switchTab(mode) {
     });
 
     if (noteArea) noteArea.style.display = (mode === 'edit') ? 'block' : 'none';
+    if (footer) footer.style.display = (mode === 'law') ? 'none' : 'flex';
 
-    if (mode === 'law') {
-        const lastFetch = localStorage.getItem('last_law_fetch') || 0;
-        if (Date.now() - lastFetch > 600000) fetchLegalDocs(); // Quét lại nếu sau 10 phút
-    }
-    
-    if (mode === 'preview') {
-        const previewArea = document.getElementById('preview-area');
-        if (typeof marked !== 'undefined' && previewArea && noteArea) {
-            previewArea.innerHTML = marked.parse(noteArea.value || '');
-        }
+    if (mode === 'law') fetchLegalDocs();
+    if (mode === 'preview' && typeof marked !== 'undefined') {
+        document.getElementById('preview-area').innerHTML = marked.parse(noteArea.value || '');
     }
 }
 
-// --- STEALTH DRAG SYSTEM ---
+// --- PRECISION DRAG SYSTEM ---
 function initDraggableClock() {
     const clock = document.querySelector('.cat-clock-pos');
     if (!clock) return;
@@ -85,60 +80,49 @@ function initDraggableClock() {
     });
 }
 
-// --- RADAR 4.0 (RSS-to-JSON Hybrid) ---
+// --- RADAR 5.0 (Satellite Google News Feed) ---
 async function fetchLegalDocs() {
     const listEl = document.getElementById('law-list');
     if (!listEl) return;
-    logDebug("⚡ Đang kích hoạt Radar 4.0 (Cổng chuyên dụng)...");
+    logDebug("📡 Kích hoạt Radar Vệ tinh (Google News Hub)...");
 
-    const feeds = {
-        vanban: 'https://thuvienphapluat.vn/rss/vbm.rss',
-        duthao: 'https://thuvienphapluat.vn/rss/dt.rss',
-        congvan: 'https://thuvienphapluat.vn/rss/cv.rss'
+    // Thay vì gọi trực tiếp TVPL (bị chặn), ta gọi Google News quét TVPL và các nguồn luật
+    const queries = {
+        vanban: 'site:thuvienphapluat.vn "văn bản mới"',
+        duthao: 'site:thuvienphapluat.vn "dự thảo"',
+        congvan: 'site:thuvienphapluat.vn "công văn"'
     };
 
-    const engines = [
-        // Động cơ 1: RSS2JSON (IP Uy tín)
-        (u) => `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(u)}&v=${Date.now()}`,
-        // Động cơ 2: AllOrigins Raw
-        (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-        // Động cơ 3: Codetabs Stealth
-        (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`
-    ];
-
-    const fetchAny = async (name, url) => {
-        for (let i = 0; i < engines.length; i++) {
-            try {
-                logDebug(`[${name}] Thử Động cơ ${i + 1}...`);
-                const response = await fetch(engines[i](url));
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-                if (i === 0) { // Xử lý JSON từ RSS2JSON
-                    const data = await response.json();
-                    if (data.status !== 'ok') throw new Error("API bận");
-                    logDebug(`[${name}] Đã lấy ${data.items.length} tin (JSON).`);
-                    return data.items.slice(0, 8).map(it => ({ title: it.title, link: it.link, pubDate: it.pubDate }));
-                } else { // Xử lý XML thô
-                    const text = await response.text();
-                    if (text.length < 500) throw new Error("Dữ liệu ngắn");
-                    const xml = new DOMParser().parseFromString(text, "text/xml");
-                    const items = Array.from(xml.querySelectorAll("item")).slice(0, 8).map(it => ({
-                        title: it.querySelector("title")?.textContent,
-                        link: it.querySelector("link")?.textContent,
-                        pubDate: it.querySelector("pubDate")?.textContent
-                    }));
-                    if (items.length > 0) { logDebug(`[${name}] Đã lấy ${items.length} tin (XML).`); return items; }
-                }
-            } catch (e) { logDebug(`[${name}] Động cơ ${i + 1} nghẽn: ${e.message.slice(0, 15)}`, true); }
+    const fetchSatellite = async (name, query) => {
+        try {
+            logDebug(`[${name}] Đang quét vệ tinh...`);
+            // Sử dụng RSS2JSON nhưng quét qua Google News RSS (Cực kỳ khó bị chặn)
+            const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=vi&gl=VN&ceid=VN:vi`;
+            const proxy = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+            
+            const response = await fetch(proxy);
+            const data = await response.json();
+            
+            if (data.status === 'ok') {
+                logDebug(`[${name}] Đã nhận ${data.items.length} tin.`);
+                return data.items.slice(0, 6).map(it => ({
+                    title: it.title.split(' - ')[0], // Bỏ phần tên nguồn phía sau
+                    link: it.link,
+                    pubDate: it.pubDate
+                }));
+            }
+            throw new Error("Vệ tinh bận");
+        } catch (e) {
+            logDebug(`[${name}] Vệ tinh nhiễu: ${e.message.slice(0, 15)}`, true);
+            return [];
         }
-        return [];
     };
 
     try {
         const [vb, dt, cv] = await Promise.all([
-            fetchAny("Văn bản", feeds.vanban),
-            fetchAny("Dự thảo", feeds.duthao),
-            fetchAny("Công văn", feeds.congvan)
+            fetchSatellite("Văn bản", queries.vanban),
+            fetchSatellite("Dự thảo", queries.duthao),
+            fetchSatellite("Công văn", queries.congvan)
         ]);
 
         if (vb.length || dt.length || cv.length) {
@@ -146,11 +130,12 @@ async function fetchLegalDocs() {
             renderLawGrid(freshData);
             localStorage.setItem('cached_law_data', JSON.stringify(freshData));
             localStorage.setItem('last_law_fetch', Date.now().toString());
-            logDebug("✅ Radar: Kết nối thành công!");
-        } else { throw new Error("Tất cả động cơ đều bị chặn."); }
+        } else {
+            throw new Error("Tín hiệu vệ tinh yếu.");
+        }
     } catch (err) {
         logDebug(`⚠️ Lỗi: ${err.message}`, true);
-        if (lastLawData) { logDebug("⚡ Đang hiển thị dữ liệu lưu tạm."); renderLawGrid(lastLawData, true); }
+        if (lastLawData) renderLawGrid(lastLawData, true);
     }
 }
 
@@ -161,13 +146,14 @@ function renderLawGrid(data, isCached = false) {
             <div class="law-card" style="border-left: 3px solid ${color}" onclick="window.open('${item.link}', '_blank')">
                 <span class="law-title">${item.title}</span>
                 <div class="law-meta">📅 ${item.pubDate ? new Date(item.pubDate).toLocaleDateString('vi-VN') : 'Mới'}</div>
+                <div style="font-size:0.6rem; color:#9CA3AF; margin-top:4px;">🌐 Click để xem chi tiết</div>
             </div>
         `).join('');
-        return `<div class="law-column"><h3>${title}</h3>${cards || '<p style="font-size:0.7rem; color:gray; text-align:center; padding:10px;">Đang cập nhật...</p>'}</div>`;
+        return `<div class="law-column"><h3>${title}</h3>${cards || '<p style="font-size:0.7rem; color:gray; text-align:center;">Đang chờ tín hiệu...</p>'}</div>`;
     };
 
     listEl.innerHTML = `
-        ${isCached ? '<div style="grid-column: span 3; background:#FEF3C7; color:#92400E; font-size:0.7rem; padding:4px; border-radius:4px; margin-bottom:10px; text-align:center;">🔔 Đang hiển thị dữ liệu Radar phiên trước (Dữ liệu Offline)</div>' : ''}
+        ${isCached ? '<div style="grid-column: span 3; background:#FEF3C7; color:#92400E; font-size:0.7rem; padding:4px; border-radius:4px; margin-bottom:10px; text-align:center;">🔔 Đang hiển thị bản tin Radar gần nhất (Dữ liệu Offline)</div>' : ''}
         <div class="law-grid" style="grid-column: span 3; width: 100%;">
             ${createCol("⚖️ Văn bản mới", data.vanban || [], "#4F46E5")}
             ${createCol("📝 Dự thảo mới", data.duthao || [], "#F59E0B")}
