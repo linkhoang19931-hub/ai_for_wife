@@ -1,7 +1,8 @@
-// Lawyer Intelligence Hub Pro - "Stealth Radar 5.1" (Official Document Filter)
-let todos = JSON.parse(localStorage.getItem('wife_todos') || '[]');
+// Lawyer Intelligence Hub Pro - "Stealth Radar 5.1" & "Precision Time Tracker"
+let todos = JSON.parse(localStorage.getItem('wife_todos_v2') || '[]');
 let directoryHandle = null;
 let lastLawData = JSON.parse(localStorage.getItem('cached_law_data') || 'null');
+let timerInterval = null;
 
 // --- INITIALIZATION ---
 window.onload = () => {
@@ -13,7 +14,10 @@ window.onload = () => {
     startClock(); 
     if (lastLawData) renderLawGrid(lastLawData, true);
     fetchLegalDocs();
-    initDraggableClock(); 
+    initDraggableClock();
+
+    // Khởi động vòng lặp cập nhật timer cho các task đang chạy
+    timerInterval = setInterval(updateAllTimers, 1000);
 };
 
 function logDebug(msg, isError = false) {
@@ -86,62 +90,63 @@ async function fetchLegalDocs() {
     if (!listEl) return;
     logDebug("📡 Radar 5.1: Đang lọc nhiễu văn bản chính thống...");
 
-    // Truy vấn tập trung vào các trang văn bản gốc, tránh trang tin tức
+    const currentYear = new Date().getFullYear();
     const queries = {
-        vanban: 'site:thuvienphapluat.vn/van-ban/ "Nghị định" OR "Thông tư" OR "Luật" OR "Quyết định" 2026',
-        duthao: 'site:thuvienphapluat.vn/van-ban/ "Dự thảo" 2026',
-        congvan: 'site:thuvienphapluat.vn/van-ban/ "Công văn" 2026'
+        vanban: `site:thuvienphapluat.vn/van-ban/ "Nghị định" OR "Thông tư" OR "Luật" OR "Quyết định" ${currentYear}`,
+        duthao: `site:thuvienphapluat.vn/van-ban/ "Dự thảo" ${currentYear}`,
+        congvan: `site:thuvienphapluat.vn/van-ban/ "Công văn" ${currentYear}`
     };
 
     const fetchSatellite = async (name, query) => {
-        try {
-            logDebug(`[${name}] Đang quét vệ tinh...`);
-            const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=vi&gl=VN&ceid=VN:vi`;
-            const proxy = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&api_key=h8m97f7jqqe6z167pxtk6v2v6v9v6v9v`; // Dùng key mặc định nếu có
-            
-            const response = await fetch(proxy);
-            const data = await response.json();
-            
-            if (data.status === 'ok') {
-                // Bộ lọc Hacker: Loại bỏ các tiêu đề có chứa từ khóa nhiễu
-                const filtered = data.items.filter(it => {
-                    const t = it.title.toLowerCase();
-                    return !t.includes("danh sách") && 
-                           !t.includes("tổng hợp") && 
-                           !t.includes("hướng dẫn") && 
-                           !t.includes("bao nhiêu tiền") &&
-                           !t.includes("lịch nghỉ");
-                });
+        const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=vi&gl=VN&ceid=VN:vi`;
+        const proxies = [
+            `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`,
+            `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`
+        ];
 
-                logDebug(`[${name}] Đã lấy ${filtered.length} văn bản gốc.`);
-                return filtered.slice(0, 8).map(it => ({
-                    title: it.title.split(' - ')[0],
-                    link: it.link,
-                    pubDate: it.pubDate
-                }));
+        for (const proxy of proxies) {
+            try {
+                logDebug(`[${name}] Đang quét vệ tinh qua cổng ${new URL(proxy).hostname}...`);
+                const response = await fetch(proxy);
+                
+                if (proxy.includes('rss2json')) {
+                    const data = await response.json();
+                    if (data.status === 'ok') return processItems(data.items, name);
+                } else {
+                    const data = await response.json();
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+                    const items = Array.from(xmlDoc.querySelectorAll("item")).map(item => ({
+                        title: item.querySelector("title").textContent,
+                        link: item.querySelector("link").textContent,
+                        pubDate: item.querySelector("pubDate").textContent
+                    }));
+                    if (items.length > 0) return processItems(items, name);
+                }
+            } catch (e) {
+                logDebug(`[${name}] Cổng lỗi: ${e.message.slice(0, 20)}`, true);
             }
-            throw new Error("Tín hiệu bận");
-        } catch (e) {
-            logDebug(`[${name}] Vệ tinh nhiễu: ${e.message.slice(0, 15)}`, true);
-            return [];
         }
+        return [];
+    };
+
+    const processItems = (items, name) => {
+        const filtered = items.filter(it => {
+            const t = it.title.toLowerCase();
+            return !t.includes("danh sách") && !t.includes("tổng hợp") && !t.includes("hướng dẫn") && !t.includes("bao nhiêu tiền") && !t.includes("lịch nghỉ");
+        });
+        logDebug(`[${name}] Đã lấy ${filtered.length} văn bản.`);
+        return filtered.slice(0, 8).map(it => ({ title: it.title.split(' - ')[0], link: it.link, pubDate: it.pubDate }));
     };
 
     try {
-        const [vb, dt, cv] = await Promise.all([
-            fetchSatellite("Văn bản", queries.vanban),
-            fetchSatellite("Dự thảo", queries.duthao),
-            fetchSatellite("Công văn", queries.congvan)
-        ]);
-
+        const [vb, dt, cv] = await Promise.all([ fetchSatellite("Văn bản", queries.vanban), fetchSatellite("Dự thảo", queries.duthao), fetchSatellite("Công văn", queries.congvan) ]);
         if (vb.length || dt.length || cv.length) {
             const freshData = { vanban: vb, duthao: dt, congvan: cv };
             renderLawGrid(freshData);
             localStorage.setItem('cached_law_data', JSON.stringify(freshData));
-            localStorage.setItem('last_law_fetch', Date.now().toString());
-        } else {
-            throw new Error("Không có tín hiệu chính thống.");
-        }
+            logDebug("✅ Radar đã cập nhật dữ liệu mới nhất.");
+        } else { throw new Error("Không có tín hiệu."); }
     } catch (err) {
         logDebug(`⚠️ Lỗi: ${err.message}`, true);
         if (lastLawData) renderLawGrid(lastLawData, true);
@@ -152,10 +157,8 @@ function renderLawGrid(data, isCached = false) {
     const listEl = document.getElementById('law-list');
     const createCol = (title, items, color) => {
         const cards = items.map(item => {
-            // Regex nhận diện số hiệu văn bản (Ví dụ: 12/2026/NĐ-CP)
             const docNumMatch = item.title.match(/[0-9\/]+[A-ZĐ-]+[0-9]*/);
             const docNum = docNumMatch ? docNumMatch[0] : "VB gốc";
-
             return `
                 <div class="law-card" style="border-left: 3px solid ${color}" onclick="window.open('${item.link}', '_blank')">
                     <span class="law-title">${item.title}</span>
@@ -165,27 +168,143 @@ function renderLawGrid(data, isCached = false) {
         }).join('');
         return `<div class="law-column"><h3>${title}</h3>${cards || '<p style="font-size:0.7rem; color:gray; text-align:center;">Trống</p>'}</div>`;
     };
-
     listEl.innerHTML = `
         ${isCached ? '<div style="grid-column: span 3; background:#FEF3C7; color:#92400E; font-size:0.7rem; padding:4px; border-radius:4px; margin-bottom:10px; text-align:center;">🔔 Dữ liệu Radar Offline</div>' : ''}
-        <div class="law-grid" style="grid-column: span 3; width: 100%;">
-            ${createCol("⚖️ Văn bản mới", data.vanban || [], "#4F46E5")}
-            ${createCol("📝 Dự thảo mới", data.duthao || [], "#F59E0B")}
-            ${createCol("✉️ Công văn mới", data.congvan || [], "#10B981")}
-        </div>
+        <div class="law-grid" style="grid-column: span 3; width: 100%;">${createCol("⚖️ Văn bản mới", data.vanban || [], "#4F46E5")}${createCol("📝 Dự thảo mới", data.duthao || [], "#F59E0B")}${createCol("✉️ Công văn mới", data.congvan || [], "#10B981")}</div>
     `;
 }
 
-// --- TODO SYSTEM ---
+// --- PRECISION TIME TRACKER SYSTEM ---
+function formatVNTime(date) {
+    if (!date) return "--:--";
+    return new Date(date).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit', day: '2-digit', month: '2-digit' });
+}
+
+function formatDuration(ms) {
+    if (ms < 0) ms = 0;
+    const totalSeconds = Math.floor(ms / 1000);
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    
+    const days = (h / 24).toFixed(1);
+    const hours = h.toString().padStart(2, '0');
+    const mins = m.toString().padStart(2, '0');
+    const secs = s.toString().padStart(2, '0');
+    
+    return `${hours}:${mins}:${secs} <span style="font-size:0.6rem; font-weight:normal; opacity:0.7;">(${days} ngày)</span>`;
+}
+
 function renderTodos() {
     const listEl = document.getElementById('todo-list');
     if (!listEl) return;
-    listEl.innerHTML = todos.map((t, i) => `<div class="todo-item ${t.done ? 'done' : ''}"><div style="display:flex; align-items:center; gap:8px;"><input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTodo(${i})"><span>${t.text}</span></div><button class="btn-delete" onclick="deleteTodo(${i})">✕</button></div>`).join('');
-    localStorage.setItem('wife_todos', JSON.stringify(todos));
+
+    listEl.innerHTML = todos.map((t, i) => {
+        let statusTag = `<span class="status-tag">${t.status.toUpperCase()}</span>`;
+        if (t.status === 'running') statusTag = `<span class="status-tag running">ĐANG CHẠY</span>`;
+        if (t.status === 'paused') statusTag = `<span class="status-tag paused">TẠM DỪNG</span>`;
+
+        let timeDetails = "";
+        if (t.startTime) {
+            timeDetails = `<div class="task-meta">🛫 Bắt đầu: ${formatVNTime(t.startTime)}</div>`;
+        }
+        if (t.endTime) {
+            timeDetails += `<div class="task-meta">🏁 Kết thúc: ${formatVNTime(t.endTime)}</div>`;
+        }
+
+        const currentTotalMs = calculateTotalTime(t);
+        
+        return `
+            <div class="todo-item ${t.status === 'completed' ? 'done' : ''}">
+                <div class="todo-main">
+                    <div style="display:flex; flex-direction:column; gap:2px; flex:1;">
+                        <span style="font-size:0.85rem; font-weight:600;">${t.text} ${statusTag}</span>
+                        <div class="task-timer" id="timer-${i}">${formatDuration(currentTotalMs)}</div>
+                        ${timeDetails}
+                    </div>
+                    <button class="btn-delete" onclick="deleteTodo(${i})">✕</button>
+                </div>
+                <div class="todo-controls">
+                    ${t.status !== 'completed' ? `
+                        ${t.status !== 'running' ? 
+                            `<button class="btn-time" onclick="startTask(${i})">▶️ Bắt đầu</button>` : 
+                            `<button class="btn-time active" onclick="pauseTask(${i})">⏸️ Tạm dừng</button>`
+                        }
+                        <button class="btn-time" onclick="endTask(${i})">⏹️ Kết thúc</button>
+                    ` : `<span style="font-size:0.7rem; color:var(--primary);">✅ Đã hoàn thành</span>`}
+                </div>
+            </div>
+        `;
+    }).join('');
+    localStorage.setItem('wife_todos_v2', JSON.stringify(todos));
 }
-function addTodo() { const text = prompt("Vụ việc mới:"); if(text) { todos.push({text, done:false}); renderTodos(); } }
-function deleteTodo(i) { if(confirm("Xóa?")) { todos.splice(i, 1); renderTodos(); } }
-function toggleTodo(i) { todos[i].done = !todos[i].done; renderTodos(); }
+
+function calculateTotalTime(task) {
+    let total = task.totalTime || 0;
+    if (task.status === 'running' && task.lastStartedTime) {
+        total += (Date.now() - task.lastStartedTime);
+    }
+    return total;
+}
+
+function updateAllTimers() {
+    todos.forEach((t, i) => {
+        if (t.status === 'running') {
+            const timerEl = document.getElementById(`timer-${i}`);
+            if (timerEl) timerEl.innerHTML = formatDuration(calculateTotalTime(t));
+        }
+    });
+}
+
+function addTodo() { 
+    const text = prompt("Nội dung công việc:"); 
+    if(text) { 
+        todos.push({
+            text, 
+            status: 'pending', 
+            startTime: null, 
+            endTime: null, 
+            lastStartedTime: null,
+            totalTime: 0 
+        }); 
+        renderTodos(); 
+    } 
+}
+
+function startTask(i) {
+    // Tự động pause các task khác nếu đang chạy (vợ yêu cầu có thể sang task khác)
+    // todos.forEach((t, idx) => { if (t.status === 'running' && idx !== i) pauseTask(idx); });
+    
+    const t = todos[i];
+    if (!t.startTime) t.startTime = Date.now();
+    t.lastStartedTime = Date.now();
+    t.status = 'running';
+    renderTodos();
+}
+
+function pauseTask(i) {
+    const t = todos[i];
+    if (t.status === 'running') {
+        t.totalTime += (Date.now() - t.lastStartedTime);
+        t.lastStartedTime = null;
+        t.status = 'paused';
+    }
+    renderTodos();
+}
+
+function endTask(i) {
+    const t = todos[i];
+    if (t.status === 'running') {
+        t.totalTime += (Date.now() - t.lastStartedTime);
+    }
+    t.endTime = Date.now();
+    t.lastStartedTime = null;
+    t.status = 'completed';
+    renderTodos();
+}
+
+function deleteTodo(i) { if(confirm("Xóa task này?")) { todos.splice(i, 1); renderTodos(); } }
+
 function toggleDarkMode() { document.body.classList.toggle('dark-mode'); localStorage.setItem('dark_mode', document.body.classList.contains('dark-mode')); }
 function toggleFocusMode() { document.body.classList.toggle('focus-mode'); }
 async function selectFolder() { try { directoryHandle = await window.showDirectoryPicker(); } catch(e){ alert("Cần quyền."); } }
