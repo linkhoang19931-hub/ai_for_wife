@@ -1,0 +1,5 @@
+.DS_Store
+*.png
+progress.md
+node_modules/
+.env
