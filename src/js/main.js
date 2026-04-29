@@ -1,6 +1,7 @@
-// Lawyer Intelligence Hub Pro - "Stealth Radar" Engine
+// Lawyer Intelligence Hub Pro - "Stealth Radar 3.0" Engine
 let todos = JSON.parse(localStorage.getItem('wife_todos') || '[]');
 let directoryHandle = null;
+let lastLawData = JSON.parse(localStorage.getItem('cached_law_data') || 'null');
 
 // --- INITIALIZATION ---
 window.onload = () => {
@@ -10,6 +11,7 @@ window.onload = () => {
     
     renderTodos(); 
     startClock(); 
+    if (lastLawData) renderLawGrid(lastLawData, true); // Hiện dữ liệu cũ trước cho nhanh
     fetchLegalDocs();
     initDraggableClock(); 
 };
@@ -42,7 +44,14 @@ function switchTab(mode) {
         noteArea.style.display = (mode === 'edit') ? 'block' : 'none';
     }
 
-    if (mode === 'law') fetchLegalDocs();
+    if (mode === 'law') {
+        // Chỉ quét nếu chưa có dữ liệu hoặc dữ liệu quá cũ (1 tiếng)
+        const lastFetch = localStorage.getItem('last_law_fetch') || 0;
+        if (Date.now() - lastFetch > 3600000 || !lastLawData) {
+            fetchLegalDocs();
+        }
+    }
+    
     if (mode === 'preview') {
         const previewArea = document.getElementById('preview-area');
         if (typeof marked !== 'undefined' && previewArea && noteArea) {
@@ -51,7 +60,7 @@ function switchTab(mode) {
     }
 }
 
-// --- STEALTH DRAG SYSTEM (Photoshop Style) ---
+// --- DRAG & DROP SYSTEM (Photoshop Style) ---
 function initDraggableClock() {
     const clock = document.querySelector('.cat-clock-pos');
     if (!clock) return;
@@ -60,7 +69,6 @@ function initDraggableClock() {
     let startX, startY;
     let initialTranslateX = 0, initialTranslateY = 0;
 
-    // Load saved position
     const saved = JSON.parse(localStorage.getItem('clock_pos_v4') || 'null');
     if (saved) {
         initialTranslateX = saved.x;
@@ -79,16 +87,11 @@ function initDraggableClock() {
     document.addEventListener("mousemove", (e) => {
         if (!isDragging) return;
         e.preventDefault();
-        
         const deltaX = e.clientX - startX;
         const deltaY = e.clientY - startY;
-
         const currentX = initialTranslateX + deltaX;
         const currentY = initialTranslateY + deltaY;
-
         clock.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
-        
-        // Cập nhật giá trị tạm thời để khi nhả chuột ko bị giật
         clock.dataset.lastX = currentX;
         clock.dataset.lastY = currentY;
     });
@@ -103,13 +106,12 @@ function initDraggableClock() {
     });
 }
 
-// --- MULTI-PROXY RADAR (Hacker Edition) ---
+// --- STEALTH RADAR 3.0 (Proxy Roulette + Local Cache) ---
 async function fetchLegalDocs() {
     const listEl = document.getElementById('law-list');
     if (!listEl) return;
-    listEl.innerHTML = "<div style='grid-column: span 3; text-align:center; padding:20px;'>📡 Đang quét Radar Stealth (Thử nghiệm đa tầng)...</div>";
     
-    logDebug("Khởi động Radar đa tầng...");
+    logDebug("Khởi động Radar 3.0 (Deep Scan)...");
 
     const feeds = {
         vanban: 'https://thuvienphapluat.vn/rss/vbm.rss',
@@ -117,67 +119,77 @@ async function fetchLegalDocs() {
         congvan: 'https://thuvienphapluat.vn/rss/cv.rss'
     };
 
-    // Danh sách Proxy "Ngầm" để lách luật
     const proxies = [
+        (u) => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}&v=${Date.now()}`,
         (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
-        (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-        (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`,
-        (u) => `https://thingproxy.freeboard.io/fetch/${u}`
+        (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`
     ];
 
     const stealthFetch = async (name, url) => {
         for (let i = 0; i < proxies.length; i++) {
             try {
-                logDebug(`[${name}] Đang thử Động cơ ${i + 1}...`);
-                const response = await fetch(proxies[i](url), { cache: 'no-store' });
+                logDebug(`[${name}] Động cơ ${i + 1} đang quét...`);
+                const response = await fetch(proxies[i](url));
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-                const text = await response.text();
-                if (text.length < 500) throw new Error("Dữ liệu không đủ độ dài.");
+                let text;
+                if (i === 0) { // AllOrigins JSON wrapper
+                    const data = await response.json();
+                    text = data.contents;
+                } else {
+                    text = await response.text();
+                }
+
+                if (!text || text.length < 500) throw new Error("Dữ liệu rác hoặc bị chặn.");
 
                 const parser = new DOMParser();
                 const xml = parser.parseFromString(text, "text/xml");
-                if (xml.querySelector("parsererror")) throw new Error("XML Corrupted.");
-
                 const items = Array.from(xml.querySelectorAll("item")).slice(0, 8).map(item => ({
                     title: item.querySelector("title")?.textContent || "Văn bản",
                     link: item.querySelector("link")?.textContent || "#",
                     pubDate: item.querySelector("pubDate")?.textContent || ""
                 }));
 
-                logDebug(`[${name}] Đã lấy được ${items.length} tin.`);
-                return items;
+                if (items.length > 0) {
+                    logDebug(`[${name}] Đã bắt được ${items.length} mục.`, false);
+                    return items;
+                }
             } catch (e) {
-                logDebug(`[${name}] Động cơ ${i + 1} kẹt: ${e.message.slice(0, 20)}...`, true);
+                logDebug(`[${name}] Động cơ ${i + 1} lỗi: ${e.message.slice(0, 15)}`, true);
             }
         }
         return [];
     };
 
     try {
-        // Chạy song song nhưng xử lý từng luồng
         const [vb, dt, cv] = await Promise.all([
             stealthFetch("Văn bản", feeds.vanban),
             stealthFetch("Dự thảo", feeds.duthao),
             stealthFetch("Công văn", feeds.congvan)
         ]);
 
-        if (!vb.length && !dt.length && !cv.length) throw new Error("Tất cả vệ tinh bị chặn.");
-
-        renderLawGrid({ vanban: vb, duthao: dt, congvan: cv });
-        logDebug("Radar quét hoàn tất!");
+        if (vb.length || dt.length || cv.length) {
+            const freshData = { vanban: vb, duthao: dt, congvan: cv };
+            renderLawGrid(freshData);
+            // Lưu vào bộ nhớ đệm
+            localStorage.setItem('cached_law_data', JSON.stringify(freshData));
+            localStorage.setItem('last_law_fetch', Date.now().toString());
+            logDebug("Radar: Đã cập nhật dữ liệu mới nhất!");
+        } else {
+            throw new Error("Tất cả vệ tinh đều bị chặn.");
+        }
     } catch (err) {
-        logDebug(`THẤT BẠI: ${err.message}`, true);
-        listEl.innerHTML = `
-            <div style='grid-column: span 3; text-align:center; padding:20px;'>
-                <p style='color:#ff4d4d;'>⚠️ Không thể quét radar tự động (CORS Security).</p>
-                <button class="btn-primary" onclick="window.open('https://thuvienphapluat.vn/tra-cuu-phap-luat-moi.aspx', '_blank')" style="margin-top:10px;">Mở Thư Viện Pháp Luật chính thống ↗️</button>
-            </div>
-        `;
+        logDebug(`Cảnh báo: ${err.message}`, true);
+        if (lastLawData) {
+            logDebug("Đang hiển thị dữ liệu từ bộ nhớ đệm...");
+            renderLawGrid(lastLawData, true);
+        } else {
+            listEl.innerHTML = `<div style='grid-column: span 3; text-align:center; padding:20px; color:#ff4d4d;'>⚠️ Không thể kết nối. Vợ nhấn nút "Quét lại" hoặc mở trang gốc nhé!</div>`;
+        }
     }
 }
 
-function renderLawGrid(data) {
+function renderLawGrid(data, isCached = false) {
     const listEl = document.getElementById('law-list');
     const createCol = (title, items, color) => {
         const cards = items.map(item => `
@@ -190,10 +202,11 @@ function renderLawGrid(data) {
     };
 
     listEl.innerHTML = `
+        ${isCached ? '<div style="grid-column: span 3; background:#FEF3C7; color:#92400E; font-size:0.7rem; padding:4px 10px; border-radius:4px; margin-bottom:10px; text-align:center;">🕒 Đang hiển thị dữ liệu lưu tạm (Radar đang bị nhiễu)</div>' : ''}
         <div class="law-grid" style="grid-column: span 3; width: 100%;">
-            ${createCol("⚖️ Văn bản mới", data.vanban, "#4F46E5")}
-            ${createCol("📝 Dự thảo mới", data.duthao, "#F59E0B")}
-            ${createCol("✉️ Công văn mới", data.congvan, "#10B981")}
+            ${createCol("⚖️ Văn bản mới", data.vanban || [], "#4F46E5")}
+            ${createCol("📝 Dự thảo mới", data.duthao || [], "#F59E0B")}
+            ${createCol("✉️ Công văn mới", data.congvan || [], "#10B981")}
         </div>
     `;
 }
